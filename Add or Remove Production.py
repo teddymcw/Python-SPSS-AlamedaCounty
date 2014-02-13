@@ -21,7 +21,7 @@ def main():
         remove(DB)
         checkInsert(DB)
         returnMain()
-    elif removeOrAdd.upper()=='U':
+    elif removeOrAdd.upper()=='U': 
         DB=StageMove(DB)
         createPushFilesx(primaryFolder,DB)
         changeDevToProductionx(DB)
@@ -190,18 +190,20 @@ def createFiles(FN):
 
 def StageMove(DB):
     """ move file from stage to production and remove dev """
-    for afile in os.listdir('//covenas/decisionsupport/DashboardDataSets/staging/'):
+    stageFolder = '//covenas/decisionsupport/DashboardDataSets/staging/'
+    for afile in os.listdir(stageFolder):
         if DB.upper() in afile.upper():
             raw=raw_input('\nyou have selected %s, \n\n     No to stop,\n     Y to continue\n' % afile) 
             if raw.upper() in 'NO':
                 pass
             else:
                 print 'processing'
+                changeEnd(stageFolder,afile)
                 FileWOext=os.path.splitext(afile)[0]
                 FileExt=os.path.splitext(afile)[1]
                 afilenodev=re.sub('_dev','',afile, flags=re.I)
                 print 'moving ', afilenodev
-                src='//covenas/decisionsupport/DashboardDataSets/staging/%s' % (afile)
+                src=stageFolder+afile
                 dst='//covenas/decisionsupport/meinzer/production/DashboardDataSets/%s' % (afilenodev)
                 shutil.move(src,dst)
                 src='//covenas/decisionsupport/meinzer/production/DashboardDataSets/%s' % (afilenodev)
@@ -210,7 +212,7 @@ def StageMove(DB):
                 shutil.copyfile(src,dst)
                 return afilenodev
         elif 'BACKUP' in afile.upper() or 'DUMMY' in afile.upper():
-                os.remove('//covenas/decisionsupport/DashboardDataSets/staging/'+afile)
+                os.remove(stageFolder+afile)
 
              
 
@@ -605,7 +607,7 @@ def changeDevToProductionx(DB):
     DBname2=DBname+"P"
     file="//covenas/decisionsupport/meinzer/production/push/%s.sps" % DBname
     file2="//covenas/decisionsupport/meinzer/production/pushproduction/%s.sps" % DBname2
-    print file, file2
+    print file, file2+'\n'
     with open(file,"r") as checkforDashFile:
         DashCheck=checkforDashFile.read()
         if 'DASHBOARD' in DashCheck.upper():
