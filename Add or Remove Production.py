@@ -11,7 +11,7 @@ from os import walk
 primaryFolder='//covenas/decisionsupport/meinzer/production/DashboardDatasets/'
 
 logging.basicConfig(filename='//covenas/decisionsupport/meinzer/production/output/productionMenu.log',level=logging.DEBUG)
-logging.debug('pushodbc sent '+ str(datetime.now())+' log in //covenas/decisionsupport/meinzer/production/output/pushodbc.log //covenas/decisionsupport/meinzer/production/output/ProductionMenduDeBug.txt')
+logging.debug('Production System '+ str(datetime.now())+' log in //covenas/decisionsupport/meinzer/production/output/productionSystem.log //covenas/decisionsupport/meinzer/production/output/ProductionMenduDeBug.txt')
 
 def main():
     """ the function pusher """
@@ -54,11 +54,12 @@ def main():
         returnMain()
     elif removeOrAdd.upper()=='S':
         mypath=raw_input('path to start-will continue through subfolders\n')
-        endFill=raw_input('type of file eg only sps\n')
+        endFill=raw_input('type of file+exention or just extention\n    .sps gets all syntax or graphics.sps will get demographics.sps\n')
         changeEnd(mypath,endFill)        
         returnMain()
 
 def changeEnd(mypath,endFill):
+    """ changes mapped drive references to UNC so no more k: and I: because server edition only does UNC"""
     list=[]
     fails=[]
     f = []
@@ -91,10 +92,13 @@ def changeEnd(mypath,endFill):
         except Exception,e:
             print e
             fails.append(file)
-    print 'if error, it was'
+    if fails:
+        print 'There Were ERRORS!\n'
+    else:
+        fails.append('No Errors\n')
     for item in fails:
         print item
-    print 'otherwise, these attempted'
+    print 'these files were analyzed\n'
     for file in list:
         print file 
 
@@ -110,23 +114,36 @@ def loadPushODBC():
 def LookInsert():
     """ browse the pushes in the insert files """
     list=[]
-    for afile in os.listdir('//covenas/decisionsupport/meinzer/production/insert/'):
+    whatFile = raw_input('DashboardDatasets, stage or insert\n')
+    if whatFile.upper() in 'DASHBOARDDATASETS':
+        whatFile='meinzer/production/dashboarddatasets'
+    if whatFile.upper() in 'STAGING' or whatFile.upper() in 'STAGE':
+        whatFile='dashboarddatasets/Staging'
+    else:
+        whatFile='meinzer/production/insert'
+    for afile in os.listdir('//covenas/decisionsupport/%s/' % whatFile):
         list.append(afile)
-    stringlist=', '.join(list)
-    insertfile = raw_input('\n which file do you want to look into?\n\n \n'+ stringlist+'\n')   
-    for afile in os.listdir('//covenas/decisionsupport/meinzer/production/insert/'):
-        if insertfile.upper() in afile.upper():
-          insertfile='//covenas/decisionsupport/meinzer/production/insert/'+afile   
-    with open(insertfile, 'rb') as f:
-        code=f.read()
-        p=re.compile("\w+(?=.sps)",flags=re.M)
-        results=p.findall(code)
-        print '\n**********your list************'
-        for item in results:
-            # print '\n'
-            if 'ERRORTESTP' not in item.upper():
-                print item 
-        print '*************************'
+    stringlist=',\n '.join(list)
+    if whatFile =='meinzer/production/insert':
+        insertfile = raw_input('\n which file do you want to look into?\n\n \n'+ stringlist+'\n')   
+        for afile in os.listdir('//covenas/decisionsupport/meinzer/production/insert/'):
+            if insertfile.upper() in afile.upper():
+              insertfile='//covenas/decisionsupport/meinzer/production/insert/'+afile   
+        with open(insertfile, 'rb') as f:
+            code=f.read()
+            p=re.compile("\w+(?=.sps)",flags=re.M)
+            results=p.findall(code)
+            print '\nThe file you are checking is'
+            print insertfile+'\n'
+            print '\n**********your list************'
+            for item in results:
+                # print '\n'
+                if 'ERRORTESTP' not in item.upper():
+                    print item 
+            print '*************************'
+    else:
+        insertfile = raw_input('\n hit any key to continue\n \n'+ stringlist+'\n')  
+
 
 
 def promptInfo1():
@@ -265,12 +282,14 @@ def remove(DB):
                 # print item
 
 def createSyntax(ErrorAlertDays,DevProdBoth,DB):
+    """ add a sequence to an insert file"""
     for afile in os.listdir('//covenas/decisionsupport/meinzer/production/DashboardDataSets/'):
       if DB.upper() in afile.upper():
        raw=raw_input('\nyou have selected %s, \n\n     No to stop,\n     Y to continue\n' % afile) 
        if raw.upper() in 'NO':
         AddInsert=""
        else:
+        DB = os.path.splitext(afile)[0]
         if DevProdBoth=='D':
             print 'Dev'
             AddInsert="""
@@ -310,6 +329,7 @@ insert file='//covenas/decisionsupport/meinzer/production/ps/errorTestPickles.sp
     return AddInsert    
 
 def placeInsert(AddInsert):
+    """ put the create syntax into an insert file of your choice"""
     list=[]
     if AddInsert == '':
         print 'nothing added'
@@ -330,6 +350,7 @@ def placeInsert(AddInsert):
             ts.write(item) 
 
 def createFilesGeneric():
+    """ Not in use because overwriting files while running multiple caused conflict"""
     if socket.gethostname() =='WinSPSSV4':
         version='22'
     else:
@@ -344,36 +365,38 @@ def createFilesGeneric():
         bat.write(batstring)    
 
 def createSyntaxGeneric(DB):
+    """ creates the syntax for pushing a file dev and or production"""
     DB= raw_input("DB name without with or without extension   i.e. sps \n")
     DevProdBoth = raw_input("(F) File (D)ev, (P)roduction:\n ").upper()
     for afile in os.listdir('//covenas/decisionsupport/meinzer/production/dashboarddatasets/'):
         if DB.upper() in afile.upper():
-            whatUwant=raw_input('you wanted %s? yes or no \n' % afile)
+            whatUwant=raw_input('----------you wanted %s? yes or no \n' % afile)
             if 'Y' in whatUwant.upper():
                 DB = os.path.splitext(afile)[0]
                 break
             else:
-                print 'next match'
+                print '\n----------next match'
     if 'N' in whatUwant.upper():
         print '\ntry again\n'
         DB= raw_input("DB name without with or without extension   i.e. sps \n")
         for afile in os.listdir('//covenas/decisionsupport/meinzer/production/dashboarddatasets/'):
             if DB.upper() in afile.upper():
-                whatUwant=raw_input('you wanted %s? yes or no \n' % afile)
+                whatUwant=raw_input('----------you wanted %s? yes or no \n' % afile)
                 if 'Y' in whatUwant.upper():
                     DB = os.path.splitext(afile)[0]
                     break
                 else:
-                    print 'next match'
+                    print '\n----------next match'
     list=[]
+    #import pdb; pdb.set_trace()
     if 'F' in DevProdBoth.upper():
         list.append('//covenas/decisionsupport/meinzer/Production/dashboarddatasets/%s.sps' % DB)
     if 'D' in DevProdBoth.upper():
-        list.append('//covenas/decisionsupport/meinzer/Production/push/%spush.sps'% DB)
+        list.append("//covenas/decisionsupport/meinzer/Production/push/%spush.sps" % DB)
     if 'P' in DevProdBoth.upper():
-        list.append('//covenas/decisionsupport/meinzer/Production/pushproduction/%spushP.sps'% DB)
+        list.append("//covenas/decisionsupport/meinzer/Production/pushproduction/%spushP.sps" % DB)
+    who=raw_input('\n----------who should be emailed?')
     liststring=list[0:]
-    who=raw_input('who should be emailed?')
     syntax="""begin program.
 AlertDays=99  
 Files=%s
@@ -381,7 +404,8 @@ end program.
 insert file='//covenas/decisionsupport/meinzer/production/ps/errorTestPickles2.sps'.        
 *insert file='//covenas/decisionsupport/meinzer/production/ps/errorLevel.sps'.  
 *HOST COMMAND=['c:\python%s\python "//covenas/decisionsupport/meinzer/production/ps/finishAlert.py" "%s"'].""" % (liststring,str(sys.version_info[0])+str(sys.version_info[1]),who)
-    splitsyntax=syntax.split('\n')
+    p=re.compile('\n',re.M)
+    splitsyntax=p.split(syntax)
     batstring=r""""C:\Program Files\IBM\SPSS\Statistics\%s\stats.exe" -production "\\covenas\decisionsupport\Meinzer\Production\SPJ\%s.spj" """ % ('22',DB)                  
     spjstring=r"""<?xml version="1.0" encoding="UTF-8"?><job print="false" syntaxErrorHandling="continue" syntaxFormat="interactive" unicode="false" xmlns="http://www.ibm.com/software/analytics/spss/xml/production" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ibm.com/software/analytics/spss/xml/production http://www.ibm.com/software/analytics/spss/xml/production/production-1.3.xsd"><output outputFormat="viewer" outputPath="\\covenas\decisionsupport\Meinzer\Production\Output\production made\%s.spv"/><syntax syntaxPath="\\covenas\decisionsupport\temp\%s.sps"/></job>""" % (DB,DB)
     SPJloc="//covenas/decisionsupport/Meinzer/Production/SPJ/%s.spj" % DB
@@ -392,29 +416,33 @@ insert file='//covenas/decisionsupport/meinzer/production/ps/errorTestPickles2.s
         bat.write(batstring)   
     with open('//covenas/decisionsupport/temp/%s.sps' % DB,'w+') as gen:
         for item in splitsyntax:
+            item=item.replace(', ',',\n')
             gen.write(item+'\n')
     print '\n****you are about to run the following spss syntax***\n'
     for line in splitsyntax:
-     print line
-    print '\nis that okay?\n'
+        print line
+    print '\n\n----------is that okay?\n'
     xx = raw_input("control c to stop, \notherwise hit any key")
-    call(r"\\covenas\decisionsupport\meinzer\production\bat\temp\%s.bat" % DB)
-    #call(r"\\covenas\decisionsupport\meinzer\production\bat\%s.bat" % DB)
-    print '\nPushing your file!!!!\n'
     errorList=[]
-    with open('//covenas/decisionsupport/temp/errorresult.txt','r') as ER:
-        # for row in ER:
-            # errorList.append(row)
-        error=ER.readline()
-    # error= "<br> ".join(errorList)
+    try:
+        call(r"\\covenas\decisionsupport\meinzer\production\bat\temp\%s.bat" % DB)
+        print '\nPushing your file!!!!\n'
+        with open('//covenas/decisionsupport/temp/errorresult.txt','r') as ER:
+            error=ER.readline()
+    except Exception,e:
+        print 'there was an exception'
+        error='\nThere was an error in your file\n'+str(e)
     print error
     call(r'c:\python%s\python \\covenas\decisionsupport\meinzer\production\ps\finishAlert2.py "%s" %s ' % (str(sys.version_info[0])+str(sys.version_info[1]),error,who))
+    finished = raw_input('press any key to close this window')
 
 def runBat():
+    """ not in use because generic overwritten when running two processes"""
     Popen(r"//covenas/decisionsupport/meinzer/production/bat/generic.bat")
     print '\nPushing your file!!!!\n'
 
 def createPushFiles():
+    """ In use updates push and pushproduction files during odbc update"""
     DBList=[]
     primaryFolder='//covenas/decisionsupport/meinzer/production/DashboardDatasets/'
     for afile in os.listdir(primaryFolder):
@@ -468,29 +496,31 @@ def createPushFiles():
     print DBList
 
 def changeDevToProduction():
+    """ updates during odbc push """
     DBList=[]
     for afile in os.listdir('//covenas/decisionsupport/meinzer/production/push/'):
-       if afile.upper().endswith('.SPS'):
-          FileWOext=os.path.splitext(afile)[0]
-          DBList.append(FileWOext)
+        if afile.upper().endswith('.SPS'):
+            FileWOext=os.path.splitext(afile)[0]
+            DBList.append(FileWOext)
     for DB in DBList:
-       DBname=DB
-       DBname2=DBname+"P"
-       file="//covenas/decisionsupport/meinzer/production/push/%s.sps" % DBname
-       file2="//covenas/decisionsupport/meinzer/production/pushproduction/%s.sps" % DBname2
-       print file, file2
-       with open(file,"r") as checkforDashFile:
-          DashCheck=checkforDashFile.read()
-          if 'DASHBOARD' in DashCheck.upper():
-             with open(file, "r") as f: 
-                c=f.readlines()   
-             with open(file2, 'w') as ts:
-                for item in c:
-                   itemchange=re.compile(re.escape('dashboarddatadev'),re.IGNORECASE)
-                   itemswitch=itemchange.sub('DashboardData',item)
-                   ts.write(itemswitch) 
+        DBname=DB
+        DBname2=DBname+"P"
+        file="//covenas/decisionsupport/meinzer/production/push/%s.sps" % DBname
+        file2="//covenas/decisionsupport/meinzer/production/pushproduction/%s.sps" % DBname2
+        print file, file2
+        with open(file,"r") as checkforDashFile:
+            DashCheck=checkforDashFile.read()
+            if 'DASHBOARD' in DashCheck.upper():
+                with open(file, "r") as f: 
+                    c=f.readlines()   
+                with open(file2, 'w') as ts:
+                    for item in c:
+                        itemchange=re.compile(re.escape('dashboarddatadev'),re.IGNORECASE)
+                        itemswitch=itemchange.sub('DashboardData',item)
+                        ts.write(itemswitch) 
 
 def washDash():
+    """ takes the production version and replaces the dev"""
     primaryFolder='//covenas/decisionsupport/meinzer/production/DashboardDatasets/'
     DBList=[]
     for afile in os.listdir(primaryFolder):
@@ -525,6 +555,7 @@ def washDash():
         shutil.copy2( src,dst)
 
 def createPushFilesx(primaryFolder,DB):
+    """ makes emanio push files during update stagign"""
     DB=os.path.splitext(DB)[0]
     line1='\ncompute DBcreateDate=$time.'
     line2='\nformat dbcreatedate (datetime23).\n'
@@ -568,22 +599,23 @@ def createPushFilesx(primaryFolder,DB):
         print 'no push found in ', file
 
 def changeDevToProductionx(DB):
-       DB=os.path.splitext(DB)[0]
-       DBname=DB+'push'
-       DBname2=DBname+"P"
-       file="//covenas/decisionsupport/meinzer/production/push/%s.sps" % DBname
-       file2="//covenas/decisionsupport/meinzer/production/pushproduction/%s.sps" % DBname2
-       print file, file2
-       with open(file,"r") as checkforDashFile:
-          DashCheck=checkforDashFile.read()
-          if 'DASHBOARD' in DashCheck.upper():
-             with open(file, "r") as f: 
+    """change dev pushes to production pushes"""
+    DB=os.path.splitext(DB)[0]
+    DBname=DB+'push'
+    DBname2=DBname+"P"
+    file="//covenas/decisionsupport/meinzer/production/push/%s.sps" % DBname
+    file2="//covenas/decisionsupport/meinzer/production/pushproduction/%s.sps" % DBname2
+    print file, file2
+    with open(file,"r") as checkforDashFile:
+        DashCheck=checkforDashFile.read()
+        if 'DASHBOARD' in DashCheck.upper():
+            with open(file, "r") as f: 
                 c=f.readlines()   
-             with open(file2, 'w') as ts:
+            with open(file2, 'w') as ts:
                 for item in c:
-                   itemchange=re.compile(re.escape('dashboarddatadev'),re.IGNORECASE)
-                   itemswitch=itemchange.sub('DashboardData',item)
-                   ts.write(itemswitch)
+                    itemchange=re.compile(re.escape('dashboarddatadev'),re.IGNORECASE)
+                    itemswitch=itemchange.sub('DashboardData',item)
+                    ts.write(itemswitch)
 
 if __name__ == "__main__":
     try:

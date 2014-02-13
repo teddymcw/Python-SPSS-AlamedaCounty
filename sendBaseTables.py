@@ -11,7 +11,9 @@ import sys
 SendEmailFrom=sys.argv[1]
 SendEmailTo=sys.argv[2:]
 benchmarkstart=datetime.now()
+
 def tryCopy(uptodateList,resultList,errorList,afile,Drive):
+    """ """
     freshData=99
     Bigger=99
     ioError=99
