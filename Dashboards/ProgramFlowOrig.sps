@@ -1,22 +1,23 @@
 DEFINE DBstartdate() date.dmy(1,7,2012) 
+
+*older adult ru's.
 !ENDDEFINE.
 define PFkeepRU() "01EM1","01EI1","00621","81601","01087","01H11" 
 !enddefine.
 
 
 *admits DC open eps.
-*explode out eps by month line 25.
+*explode out eps by month.
 get file='//covenas/decisionsupport/epsCG.sav'  /keep ru case opdate closDate epflag primarytherapist primdx lastService .
 insert file='//covenas/decisionsupport/modules/uncookedmonth.sps'.
 
+*no ops in uncooked month and only eps that overlap > dbstartdate.
 select if opdate lt UnCookedMonth and (Closdate ge DBstartdate or sysmis(closdate)).
 
+*this select will limit the entire file here because it is always the base in matches.
 select if any(ru,PFkeepRU).
 sort cases by ru.
 match files /file=* /table='//covenas/decisionsupport/rutable.sav' /by ru /keep kidsru agency provname ru program case opdate closDate epflag primarytherapist primdx lastService uncookedmonth.
-
- * exe.
- * select if index(substr(agency,1,1),"B",1) >0.
 
 recode program(sysmis=0).
 select if program ne 1.
@@ -27,9 +28,11 @@ sort cases by case epflag.
 
 save outfile='//covenas/decisionsupport/temp/EPSsortedbycase.sav'.
 
+*put closdate a month in thefuture so i can explode up to that date.
 if sysmis(closdate) closdate=datesum($time,1,'months').
 compute CountMonths=datediff($time,DBstartdate,"months").
 
+*explode algorithm.
 vector dateEp(50,f11).
 compute dateEp1=date.dmy(0,xdate.month(opdate)+1, xdate.year(opdate)).
 if dateep1 le datesum(datesum(DBstartdate,1,'months'),-1,'days') dateep1=datesum(datesum(DBstartdate,1,'months'),-1,'days').
@@ -43,6 +46,7 @@ end loop.
  * formats opdate closdate dateep1 to dateep50(moyr6).
 formats dateep1 to dateep50(date11).
 
+*.
 VARSTOCASES
 /make calendar from dateep1 to dateep50.
 
@@ -51,6 +55,7 @@ formats calendar(date11).
 compute counter=1.
 compute calendar =date.moyr(xdate.month(calendar), xdate.year(calendar)).
 
+*take out fake future closdates.
 if closdate gt $time closdate=$sysmis.
 
 sort cases by ru case opdate calendar.
@@ -67,9 +72,9 @@ insert file='//covenas/decisionsupport/meinzer/modules/calfiscalyear.sps'.
 select if calendar lt uncookedmonth and calendar ge DBstartdate.
 
 sort cases by ru.
-match files /file=* /table='//covenas/decisionsupport/rutable.sav' /by ru .
+match files /table='//covenas/decisionsupport/rutable.sav' /file=* /by ru .
 sort cases by case.
-match files /file=* /table='//covenas/spssdata/clinfo.sav' /by case.
+match files /table='//covenas/spssdata/clinfo.sav' /file=* /by case.
 rename vars primdx=dx.
 sort cases by dx.
 match files /table='//covenas/decisionsupport/dxtable.sav' /file=* /by dx .
@@ -86,8 +91,6 @@ aggregate outfile=* mode=ADDVARIABLES overwrite=yes
 
 sort cases by ru case fiscalyear.
 match files /file=* /by ru case fiscalyear /first=RuFYCase1.
- * save outfile='//covenas/decisionsupport/temp/programflownosvc.sav'.
- * get file='//covenas/decisionsupport/temp/programflownosvc.sav'.
 
 *What about missing LastService? should you definately show up or only after 90 days after op?.
 if missing(lastservice) lastService=opdate.
@@ -104,8 +107,8 @@ compute FakeClose=closdate.
 end if.
 formats fakeclose(date11).
 
-
 save outfile='//covenas/decisionsupport/temp/ProgramFlow_admitDCOpenepsx.sav' /drop hispanic RaceEthnicityCode .
+
 *pushbreak.
  *  get file='//covenas/decisionsupport/temp/ProgramFlow_admitDCOpenepsx.sav'.
  *   SAVE TRANSLATE /TYPE=ODBC
@@ -122,6 +125,8 @@ get file ='//covenas/decisionsupport/temp/EPSsortedbycase.sav'.
 compute LOS=datediff(closdate,opdate,'days').
 if epflag="O" TISNow=datediff($time,opdate,'days').
 
+*determine increment for each ru and epflag.
+
 aggregate outfile=* mode=addvariables
 /break ru
 /sdstay=sd(los)
@@ -135,6 +140,7 @@ else.
 compute averagestay=$sysmis.
 end if.
 exe. 
+*for 7 categories devide by 8.
 do if epflag='C'.
 compute increment=((sdstay*2)+averagestay)/8.
 else.
@@ -161,10 +167,14 @@ aggregate outfile='//covenas/decisionsupport/temp/incrementpf.sav'
 
 format increment(f4.0).
 
+*all select eps with increment information.
 sort cases by ru case opdate.
 save outfile='//covenas/decisionsupport/temp/incrementedUsedLater.sav'.
-get file='//covenas/decisionsupport/temp/incrementedUsedLater.sav'.
+*used for what?.
+*get file='//covenas/decisionsupport/temp/incrementedUsedLater.sav'.
 
+
+*explode out increment.
 vector epIncrement(7,f11).
 compute epincrement1=opdate.
 loop #count=2 to 7.
@@ -178,42 +188,31 @@ select if epincrement le closdate.
 if closdate gt $time closdate=$sysmis.
 compute daysSinceOp= datediff(epincrement,opdate,'days').
 
+*need catinc- the string a 1-2 b3-4 c d.
 insert file='//covenas/decisionsupport/meinzer/modules/increment.sps'.
 
+*could potentially select eps here and do the above part outside of loop.
 
+*this shell is used ???.
 aggregate outfile='//covenas/decisionsupport/temp/PFshellLOSTIS.sav'
 /break ru 
 /CatInc=max(catinc).
 
 sort cases by ru case opdate epflag catinc.
+*what is this for?.
 save outfile='//covenas/decisionsupport/temp/incremented.sav'.
 
- *   get file='//covenas/decisionsupport/temp/incremented1.sav'.
- * aggregate outfile=*
-/break ru catinc
-/daysSinceOp=max(daysSinceOp).
-
+*/what is the point of this section.
 get file='//covenas/decisionsupport/dbsvc.sav' /keep kidsru agency provname ru case opdate closdate proced svcdate cost calendar duration psmask2 MCsvcCat svcMode PrimaryTherapist staff proclong epflag.
- * SAVE TRANSLATE OUTFILE='//covenas/decisionsupport/temp\rulist.csv'
-  /TYPE=CSV
-  /ENCODING='Locale'
-  /MAP
-  /REPLACE
-/keep ru
-  /FIELDNAMES 
-  /CELLS=VALUES.
 
- * select if kidsru=1.
- * exe.
- * select if index(substr(agency,1,1),"ABC",1) >0.
- * delete vars kidsru.
-exe.
- * select if any(ru,PFkeepRU).
 insert file='//covenas/decisionsupport/modules/uncookedmonth.sps'.
+
 select if opdate lt uncookedmonth and (closdate ge DBstartdate or sysmis(closdate) ) and svcdate lt uncookedmonth.
+
 *select if svcdate ge datesum(DBstartdate,-1,'years') and svcdate lt uncookedmonth.
 *check is it still f.
 *also, consider doing a visit1 on days.
+
 if any(svcMode,"05","10") AND MCSvcCat ne "F. Crisis Stabilization" Duration=1.
 do if missing(closdate).
 compute epflag='O'.
@@ -576,7 +575,7 @@ incrementthing catInc closdate epflag PrimaryTherapist dx dx_descr dx_grpDSM dx_
  /table= 'ProgramFlow_LOSTIS' /MAP/REPLACE.
 *pushbreak.
 
-
+*why is this file so huge?  does it need to be.
 get file='//covenas/decisionsupport/temp/daysbetweenvisitslater.sav'.
 
 compute svcdate=xdate.date(Svcdate).
