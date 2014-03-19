@@ -1,0 +1,22 @@
+csvLocation='k:/temp/testsql.csv'
+with open (csvLocation, 'r') as f:
+    reader = csv.reader(f)
+    columns = next(reader) 
+    query = 'insert into {0}({1}) values ({2})'
+    query = query.format('adeletechettest',','.join(columns), ','.join('?' * len(columns)))
+    print query
+    cnxn= pyodbc.connect("DSN=dashboarddatadev")
+    cursor = cnxn.cursor()
+    for data in reader:
+        cursor.execute(query, data)
+    cursor.commit()
+
+data = []
+with open('k:/temp/testsql.csv') as f:
+    for line in f:                   # loop over the rows
+        fields = line.split()        # parse the columns
+        rowdata = map(float, fields) # convert text to numbers
+        data.extend(rowdata)         # accumulate the results
+
+print 'Minimum:', min(data)
+print 'Maximum:', max(data)

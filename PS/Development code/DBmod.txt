@@ -1,0 +1,47 @@
+define:
+begin program.
+import spss 
+from datetime import datetime
+Start=datetime.now()
+try:
+   spss.Submit("""
+output new name=GlobalHosp.
+*insert file='k:/meinzer/production/dashboarddatasets/globalhosp.sps'.
+output save outfile='k:/meinzer/production/output/GlobHosp.spv'.
+   """)
+   with open("k:/meinzer/production/output/Error Log.txt", "r+") as myfile:
+      old=myfile.read()
+      myfile.seek(0)
+      Finish = datetime.now()
+      StartText = "\n"+Start.strftime("%m-%d-%y %H:%M")+"    "
+      FinishText = Finish.strftime("%m-%d-%y %H:%M")+"    "
+      myfile.write("Global Hosp Success " + "\n" + "  Start  " + "            Finish " +"            Runtime"+StartText +  FinishText + str(Finish-Start) +"\n\n" + old)
+except:
+   with open("k:/meinzer/production/output/Error Log.txt", "r+") as myfile:
+      errorLevel=str(spss.GetLastErrorLevel())
+      errorMsg=spss.GetLastErrorMessage()
+      old=myfile.read()
+      myfile.seek(0)
+      Finish = datetime.now()
+      StartText = "\n"+Start.strftime("%m-%d-%y   %H:%M")
+      FinishText = Finish.strftime("%m-%d-%y   %H:%M")
+      myfile.write("**********Global Hosp Failure********** " + "\n" + "  Start  " + "  Finish " +"     Runtime"+StartText +  FinishText + str(Finish-Start)+ "\n" )
+      myfile.write("Error level " + errorLevel + ": " + errorMsg + "\n")
+      myfile.write("At least one command did not run.\n\n"+ old)
+with open("k:/meinzer/production/output/Error Log.txt", "r+") as myfile:
+      errorLevel=str(spss.GetLastErrorLevel())
+      errorMsg=spss.GetLastErrorMessage()
+      old=myfile.read()
+      myfile.seek(0)
+      if errorLevel in ('2','3','4','5'):
+         myfile.write("*Global Not Pushed*  error " +errorLevel + "\n\n"+ old)  
+      else:
+         Start=datetime.now()
+         spss.Submit("""
+*insert file='k:/meinzer/push/globalpush.sps'.
+""")
+         Finish = datetime.now()
+         StartText = "\n"+Start.strftime("%m-%d-%y %H:%M")+"    "
+         FinishText = Finish.strftime("%m-%d-%y %H:%M")+"    "
+         myfile.write("Global Hosp Pushed \n" + "  Start  " + "            Finish " +"            Runtime"+StartText +  FinishText + str(Finish-Start) +"\n"+ old)  
+end program.

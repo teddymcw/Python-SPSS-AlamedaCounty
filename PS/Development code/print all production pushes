@@ -1,0 +1,15 @@
+for afile in os.listdir('//covenas/decisionsupport/meinzer/production/insert/'):
+            insertfile='//covenas/decisionsupport/meinzer/production/insert/'+afile   
+            if 'BACK' not in afile.upper():
+                with open(insertfile, 'rb') as f:
+                    code=f.read()
+                    p=re.compile("\w+(?=.sps)",flags=re.M)
+                    results=p.findall(code)
+                    print '\nThe file you are checking is'
+                    print insertfile+'\n'
+                    print '\n**********your list************'
+                    for item in results:
+                        # print '\n'
+                        if 'ERRORTESTP' not in item.upper():
+                            print item 
+                    print '*************************'

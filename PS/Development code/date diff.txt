@@ -1,0 +1,47 @@
+import pandas as pd
+import numpy
+from datetime import datetime
+import csv, operator
+
+
+df = pd.read_csv('k:/Meinzer/production/output/errorcsv.txt', names=['File','Status','Date','Error'])
+df=df[df.Status ==  1]
+df=df[~df['File'].str.upper().str.contains('TEST')]
+df['Date']=pd.to_datetime(df['Date'])
+xx=df.groupby('File')['Date'].max().order()
+df=pd.DataFrame(xx).reset_index()
+df['diff'] = df.apply(lambda x: (datetime.now() - x['Date']).days, axis=1)
+df['alert']=1
+
+tenDays='|'.join(['allEps.sps','pafpull.sps','pafpullsend.sps'])
+greaterNine=df[(df['diff'] >= 10) & (df.File.str.contains(tenDays))]
+greaterNine
+thirtyThree='|'.join(['Level_1.sps','Level_1push.sps','Level_1pushp.sps','medicalfalloffa.sps','medicalfalloffpush.sps','allservices.sps'])
+greaterThirtyThree=df[(df['diff'] >= 33) & (df.File.str.contains(thirtyThree))]
+greaterThirtyThree
+leftOver=tenDays+'|'+thirtyThree
+fours=df[(df['diff'] >= 4) & (~df.File.str.contains(leftOver))]
+fours
+
+alerts=greaterNine.append(greaterThirtyThree)
+alerts=fours.append(alerts)
+alerts
+
+alerts.to_csv('k:/meinzer/temp/errorlogicsort.csv')
+
+listerror=[]
+with open('k:/meinzer/temp/errorlogicsort.csv','r+') as lastWin:
+   readLastWin=csv.reader(lastWin,delimiter=',')
+   for row in readLastWin:
+       #print row
+       if row[4]=='1':
+         print row
+         listerror.append(row[1]+' was last updated '+row[3]+' Days ago!')
+listerror
+if not listerror:
+   listerror.append("""
+All syntax have been run within expected timeframe<br>
+
+""")
+
+

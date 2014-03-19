@@ -1,0 +1,105 @@
+import re
+import pyodbc
+from datetime import datetime
+
+def sendTOSQL(csvLocation,sqlTableName):
+    with open (csvLocation, 'r') as f:
+        reader = csv.reader(f)
+        columns = next(reader) 
+        query = 'insert into {0}({1}) values ({2})'
+        query = query.format(sqlTableName,','.join(columns), ','.join('?' * len(columns)))
+        itemchange=re.compile(re.escape('case'),re.IGNORECASE)
+        query=itemchange.sub('"case"',query)
+        print query
+        cnxn= pyodbc.connect("DSN=dashboarddatadev")
+        cursor = cnxn.cursor()
+        for data in reader:
+            cursor.execute(query, data)
+        cursor.commit()
+
+sendTOSQL(''//bhcsdbv03/emanio/programflow/ProgramFlow_admitDCOpeneps1.0.csv','ProgramFlow_admitDCOpeneps')
+sendTOSQL(''//bhcsdbv03/emanio/programflow/ProgramFlow_MCSvccat1.0.csv','ProgramFlow_MCSvccat')
+sendTOSQL(''//bhcsdbv03/emanio/programflow/ProgramFlow_programflowDaysBetweenVisits1.0.csv','ProgramFlow_programflowDaysBetweenVisits')
+sendTOSQL(''//bhcsdbv03/emanio/programflow/ProgramFlow_admitDCOpeneps1.0.csv','ProgramFlow_admitDCOpeneps')
+
+
+
+
+*.
+
+get file='//covenas/decisionsupport/temp/incrementedAllMatched.sav'.
+begin program.
+NI='ProgramFlow_BubbleInandSystemCost'
+factor=1.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+get file='//covenas/decisionsupport/temp/AvePerClientProgramFlowx.sav'.
+begin program.
+NI='ProgramFlow_AvePerClientProgramFlow'
+factor=1.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+
+get file ='//covenas/decisionsupport/temp/programflowLOSTIS.sav'.
+begin program.
+NI='ProgramFlow_LOSTIS'
+factor=1.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+
+get file='//covenas/decisionsupport/meinzer/temp/rusPreandPostList.sav'.
+begin program.
+NI='ProgramFlow_rusPreandPostList'
+factor=1.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+
+get file='//covenas/decisionsupport/meinzer/temp/Programflow_PrePost.sav'.
+begin program.
+NI='ProgramFlow_Programflow_PrePost'
+factor=1.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+*.
+get file='//covenas/decisionsupport/temp/incrementedAllMatched.sav'.
+begin program.
+NI='ProgramFlow_BubbleInandSystemCost'
+factor=2.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+get file='//covenas/decisionsupport/temp/AvePerClientProgramFlowx.sav'.
+begin program.
+NI='ProgramFlow_AvePerClientProgramFlow'
+factor=2.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+
+get file ='//covenas/decisionsupport/temp/programflowLOSTIS.sav'.
+begin program.
+NI='ProgramFlow_LOSTIS'
+factor=2.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+
+get file='//covenas/decisionsupport/meinzer/temp/rusPreandPostList.sav'.
+begin program.
+NI='ProgramFlow_rusPreandPostList'
+factor=2.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.
+
+
+get file='//covenas/decisionsupport/meinzer/temp/Programflow_PrePost.sav'.
+begin program.
+NI='ProgramFlow_Programflow_PrePost'
+factor=2.
+end program.
+insert file='//covenas/decisionsupport/meinzer/modules/pushemanio.sps'.

@@ -1,0 +1,116 @@
+import re
+import pyodbc
+from datetime import datetime
+import csv
+from datetime import datetime
+
+def sendTOSQL2(csvLocation,sqlTableName):
+    with open (csvLocation, 'r') as f:
+        reader = csv.reader(f)
+        columns = next(reader) 
+        query = 'insert into {0}({1}) values ({2})'
+        query = query.format(sqlTableName,','.join(columns), ','.join('?' * len(columns)))
+        itemchange=re.compile(re.escape('case,'),re.IGNORECASE)
+        query=itemchange.sub('"case",',query)
+        itemchange=re.compile(re.escape('full,'),re.IGNORECASE)
+        query=itemchange.sub('"full",',query)
+        print query
+        cnxn= pyodbc.connect("DSN=dashboarddatadev")
+        cursor = cnxn.cursor()
+        for data in reader:
+            cursor.execute(query, data)
+        cursor.commit()
+
+def sendTOSQL(csvLocation,sqlTableName):
+    with open (csvLocation, 'r') as f:
+        x=0
+        reader = csv.reader(f)
+        columns = next(reader) 
+        #import pdb; pdb.set_trace();
+        for data in reader:
+            x=x+1
+            if x != 1:
+                query = 'insert into {0}({1}) values ({2})'
+                query = query.format(sqlTableName,','.join(columns), ','.join('?' * len(columns)))
+                itemchange=re.compile(re.escape('case,'),re.IGNORECASE)
+                query=itemchange.sub('"case",',query)
+                itemchange=re.compile(re.escape('full,'),re.IGNORECASE)
+                query=itemchange.sub('"full",',query)
+                print query
+                cnxn= pyodbc.connect("DSN=dashboarddatadev")
+                cursor = cnxn.cursor()
+                for data in reader:
+                    cursor.execute(query, data)
+                cursor.commit()
+            else:
+                x=x+1
+
+
+
+# benchmarkstart=datetime.now()
+
+# sendTOSQL('//bhcsdbv03/emanio/programflow/dbsvc1.0.csv','dbsvc')
+
+# benchmarkend=datetime.now()
+# FinishText = benchmarkend.strftime("%m-%d-%y %H:%M")
+# StartText = benchmarkstart.strftime("%m-%d-%y %H:%M")
+# Runtimex = str(benchmarkend-benchmarkstart)[0:7]
+# error_result="""Service creation
+#     Start             Finish           Runtime Hrs:Min:Sec
+#     %s    %s   %s """  % (StartText,FinishText,Runtimex)
+    
+# with open("//covenas/decisionsupport/meinzer/production/output/Error Log.txt", "r+") as myfile:
+#     old=myfile.read()
+#     myfile.seek(0)
+#     myfile.write(error_result+"\n\n"+ old)
+benchmarkstart=datetime.now()
+
+sendTOSQL('//bhcsdbv02/emanio/epscg1.0.csv','epscg')
+
+benchmarkend=datetime.now()
+FinishText = benchmarkend.strftime("%m-%d-%y %H:%M")
+StartText = benchmarkstart.strftime("%m-%d-%y %H:%M")
+Runtimex = str(benchmarkend-benchmarkstart)[0:7]
+error_result="""Ep creation
+    Start             Finish           Runtime Hrs:Min:Sec
+    %s    %s   %s """  % (StartText,FinishText,Runtimex)
+    
+with open("//covenas/decisionsupport/meinzer/production/output/Error Log.txt", "r+") as myfile:
+    old=myfile.read()
+    myfile.seek(0)
+    myfile.write(error_result+"\n\n"+ old)
+
+
+benchmarkstart=datetime.now()
+
+sendTOSQL('//bhcsdbv03/emanio/programflow/epscg1.0.csv','epscg')
+
+benchmarkend=datetime.now()
+FinishText = benchmarkend.strftime("%m-%d-%y %H:%M")
+StartText = benchmarkstart.strftime("%m-%d-%y %H:%M")
+Runtimex = str(benchmarkend-benchmarkstart)[0:7]
+error_result="""Ep creation
+    Start             Finish           Runtime Hrs:Min:Sec
+    %s    %s   %s """  % (StartText,FinishText,Runtimex)
+    
+with open("//covenas/decisionsupport/meinzer/production/output/Error Log.txt", "r+") as myfile:
+    old=myfile.read()
+    myfile.seek(0)
+    myfile.write(error_result+"\n\n"+ old)
+
+benchmarkstart=datetime.now()
+
+sendTOSQL('//bhcsdbv02/emanio/epscg1.0.csv','epscg')
+
+benchmarkend=datetime.now()
+FinishText = benchmarkend.strftime("%m-%d-%y %H:%M")
+StartText = benchmarkstart.strftime("%m-%d-%y %H:%M")
+Runtimex = str(benchmarkend-benchmarkstart)[0:7]
+error_result="""Ep creation
+    Start             Finish           Runtime Hrs:Min:Sec
+    %s    %s   %s """  % (StartText,FinishText,Runtimex)
+    
+with open("//covenas/decisionsupport/meinzer/production/output/Error Log.txt", "r+") as myfile:
+    old=myfile.read()
+    myfile.seek(0)
+    myfile.write(error_result+"\n\n"+ old)

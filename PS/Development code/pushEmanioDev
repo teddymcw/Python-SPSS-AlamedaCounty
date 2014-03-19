@@ -1,0 +1,33 @@
+import re
+import pyodbc
+from datetime import datetime
+
+Start = datetime.now().replace( microsecond=0)
+
+def sendTOSQL(csvLocation,sqlTableName):
+    with open (csvLocation, 'r') as f:
+        reader = csv.reader(f)
+        columns = next(reader) 
+        query = 'insert into {0}({1}) values ({2})'
+        query = query.format(sqlTableName,','.join(columns), ','.join('?' * len(columns)))
+        itemchange=re.compile(re.escape('case'),re.IGNORECASE)
+        query=itemchange.sub('"case"',query)
+        print query
+        cnxn= pyodbc.connect("DSN=dashboarddatadev")
+        cursor = cnxn.cursor()
+        for data in reader:
+            cursor.execute(query, data)
+        cursor.commit()
+
+
+csvLocation='//bhcsdbv03/emanio/epscgpython.csv'
+sqlTableName='testSPSSpython'
+
+sendTOSQL(csvLocation,sqlTableName)
+
+Finish = datetime.now().replace( microsecond=0)
+
+Runtimex = str(Finish-Start)[0:7]
+print Runtimex
+
+
