@@ -1,0 +1,1 @@
+"C:\Program Files\IBM\SPSS\Statistics\22\stats.exe" -production "//covenas/decisionsupport/Meinzer\Production\SPJ\weekly.spj" 
