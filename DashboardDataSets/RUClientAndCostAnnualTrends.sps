@@ -28,11 +28,11 @@ select if svcdate lt  uncookedstart.
 sort cases by ru.
 Match files /table='//covenas/decisionsupport/rutable.sav' / file=* /by ru.
 
-sort cases by proced.
-Match files /table='//covenas/decisionsupport/procedsma.sav' / file=* /by proced.
+ * sort cases by proced.
+ * Match files /table='//covenas/decisionsupport/procedsma.sav' / file=* /by proced.
 
-if any(svcMode,"05","10") AND MCSvcCat ne "F. Crisis Stabilization" Day=1.
-if day=1 Duration=$sysmis.
+ * if any(svcMode,"05","10") AND MCSvcCat ne "F. Crisis Stabilization" Day=1.
+ * if day=1 Duration=$sysmis.
 
 insert file = '//covenas/decisionsupport/orozco/modules/KidsBuckets.sps'.
  * match files /table='//covenas/decisionsupport/Orozco/Temp/ProgramModels.sav' /file=* /by ru.
@@ -64,12 +64,17 @@ if kidsru=0 CSOCProgramModel="N/A".
 
 select if provname ne 'CONSERVATORSHIP CONT CARE SUP'.
 
+Aggregate outfile = * mode=ADDVARIABLES
+   /Break=FiscalYear
+   /LastFYCalendar=max(Calendar)
+   /FirstFYCalendar=min(Calendar). 
+
 Aggregate outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_Work_B.sav'
-   /Break= CSOCProgramModel Agency Provname RU KidsRUText TAYruText OAruText AdultRUText FiscalYear Case primdx
+   /Break= CSOCProgramModel Agency Provname RU DBserviceModality KidsRUText TAYruText OAruText AdultRUText FiscalYear Case primdx LastFYCalendar FirstFYCalendar
    /Cost=sum(cost)
    /Hours=sum(duration)
    /Days=sum(day)
-   /MinSvcDate=min(svcdate). 
+   /MinSvcDate=min(svcdate).
 
 Get file = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_Work_B.sav'.
 
@@ -123,8 +128,7 @@ if languageDetail = "Other Non-English" languageDetail = "Other".
 if languageDetail = "Portugese" languageDetail = "Portuguese".
 
 Save outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_B.sav' /keep 
-CSOCProgramModel Agency Provname RU KidsRUText TAYruText OAruText AdultRUText FiscalYear Case Cost Hours Days Age DxCategory dx_grpDSM Ethnicity language Gender. 
-
+CSOCProgramModel Agency Provname RU KidsRUText TAYruText OAruText AdultRUText FiscalYear Case Cost Hours Days Age DxCategory dx_grpDSM Ethnicity language Gender DBserviceModality LastFYCalendar FirstFYCalendar. 
 
 *Services Before FY 2008.
 
@@ -145,11 +149,11 @@ end if.
 sort cases by ru.
 Match files /table='//covenas/decisionsupport/rutable.sav' / file=* /by ru.
 
-sort cases by proced.
-Match files /table='//covenas/decisionsupport/procedsma.sav' / file=* /by proced.
+ * sort cases by proced.
+ * Match files /table='//covenas/decisionsupport/procedsma.sav' / file=* /by proced.
 
-if any(svcMode,"05","10") AND MCSvcCat ne "F. Crisis Stabilization" Day=1.
-if day=1 Duration=$sysmis.
+ * if any(svcMode,"05","10") AND MCSvcCat ne "F. Crisis Stabilization" Day=1.
+ * if day=1 Duration=$sysmis.
 
 insert file = '//covenas/decisionsupport/orozco/modules/KidsBuckets.sps'.
  * match files /table='//covenas/decisionsupport/Orozco/Temp/ProgramModels.sav' /file=* /by ru.
@@ -181,8 +185,13 @@ if kidsru=0 CSOCProgramModel="N/A".
 
 select if provname ne 'CONSERVATORSHIP CONT CARE SUP'.
 
+Aggregate outfile = * mode= ADDVARIABLES
+   /Break=FiscalYear
+   /LastFYCalendar=max(Calendar)
+   /FirstFYCalendar=Min(Calendar). 
+
 Aggregate outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_Work_A.sav'
-   /Break= CSOCProgramModel Agency Provname RU KidsRUText TAYruText OAruText AdultRUText FiscalYear Case primdx
+   /Break= CSOCProgramModel Agency Provname RU DBserviceModality KidsRUText TAYruText OAruText AdultRUText FiscalYear Case primdx LastFYCalendar FirstFYCalendar
    /Cost=sum(cost)
    /Hours=sum(duration)
    /Days=sum(day)
@@ -234,7 +243,7 @@ if languageDetail = "Other Non-English" languageDetail = "Other".
 if languageDetail = "Portugese" languageDetail = "Portuguese".
 
 Save outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_A.sav' /keep 
-CSOCProgramModel Agency Provname RU KidsRUText TAYruText OAruText AdultRUText FiscalYear Case Cost Hours Days Age DxCategory dx_grpDSM Ethnicity language Gender. 
+CSOCProgramModel Agency Provname RU KidsRUText TAYruText OAruText AdultRUText FiscalYear Case Cost Hours Days Age DxCategory dx_grpDSM Ethnicity language Gender DBserviceModality LastFYCalendar FirstFYCalendar. 
 
 Add files 
    /file='//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_A.sav'
@@ -242,6 +251,348 @@ Add files
 
 if dx_grpDSM= " " dx_grpDSM='Unknown'. 
 
+save outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_AB.sav'.
+
+*Region Work. 
+
+ * Get file  = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_AB.sav'.
+
+Aggregate outfile = *
+   /Break = Case FiscalYear 
+   /FirstFYCalendar= Min(FirstFYCalendar) 
+   /LastFYCalendar=Max(LastFYCalendar). 
+
+Sort cases by case.
+Match Files /table= '//covenas/decisionsupport/Clinfo.sav' /file=* /by case /keep Case FiscalYear FirstFYCalendar LastFYCalendar CIN. 
+
+match files /table='//covenas/decisionsupport/addressmhs.sav'  /file=* /by case /keep Case FiscalYear FirstFYCalendar LastFYCalendar CIN Region City Outcty Homeless StreetAddressINSYST.  
+
+ * insert file = '//covenas/decisionsupport/modules\cities.sps'.
+
+rename variables region=regionMHS. 
+rename variables city=cityMHS.
+Rename variables outcty=outctyMHS.
+rename variables homeless= homelessMHS.
+if xdate.tday(FirstFYCalendar) lt yrmoda(2007,07,01) FirstFYCalendar = date.dmy(01,07,2007).
+if xdate.tday(LastFYCalendar) lt yrmoda(2008,06,01) LastFYCalendar = date.dmy(01,06,2008).
+Save outfile = '//covenas/decisionsupport/temp/RegionWork.sav'.
+
+*Pre FY09 Medi-Cal Region Data. 
+
+Get file =  '//covenas/spssdata/MediCalData/Meds_Jul07_uncut.sav'.
+Compute FirstFYCalendar = Calendar.  
+Compute HomelessMC1=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+rename variables city = cityMC1.
+rename variables region = regionMC1.
+
+sort cases by CIN FirstFYCalendar.
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulPreFY09.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+Get file =  '//covenas/spssdata/MediCalData/meds_Jun08_uncut.sav'.
+Compute LastFYCalendar = Calendar.  
+Compute HomelessMC2=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+rename variables city = cityMC2.
+rename variables region = regionMC2.
+sort cases by CIN LastFYCalendar.
+
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunPreFY09.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+ *  FY09 Medi-Cal Region Data. 
+Get file =  '//covenas/spssdata/MediCalData/Meds_Jul08_uncut.sav'.
+
+COMPUTE OUTCTY=1.
+IF CITY = "OAKLAND" OUTCTY=0.
+IF CITY="SAN LEANDRO" OUTCTY=0.
+IF CITY="ALAMEDA" OUTCTY=0.
+IF CITY="HAYWARD" OUTCTY=0.
+IF CITY="DUBLIN" OUTCTY=0.
+IF CITY="LIVERMORE" OUTCTY=0.
+IF CITY="SAN LORENZO" OUTCTY=0.
+IF CITY="FREMONT" OUTCTY=0.
+IF CITY="PLEASANTON" OUTCTY=0.
+IF CITY="EMERYVILLE" OUTCTY=0.
+IF CITY="PIEDMONT" OUTCTY=0.
+IF CITY="ALBANY" OUTCTY=0.
+IF CITY="BERKELEY" OUTCTY=0.
+IF CITY="UNION CITY" OUTCTY=0.
+IF CITY="CASTRO VALLEY" OUTCTY=0.
+IF CITY="NEWARK" OUTCTY=0.
+IF CITY="HAYWARD" OUTCTY=0.
+IF CITY = "SUNOL" OUTCTY=0.
+IF CITY = "UNKNOWN" OUTCTY=0.
+IF CITY = "HOMELESS"     OUTCTY=0.
+
+string Region(a18).
+if city = "ALAMEDA" Region="1. North".
+if city = "ALBANY" Region="1. North".
+if city = "BERKELEY" Region="1. North".
+if city = "OAKLAND" Region="1. North".
+if city = "EMERYVILLE" Region="1. North".
+if city = "PIEDMONT" Region="1. North".         
+if city = "HAYWARD" Region="2. Central".         
+if city = "SAN LEANDRO" Region="2. Central".         
+if city = "SAN LORENZO" Region="2. Central".       
+if city  = "CASTRO VALLEY" Region="2. Central".
+if city = "PLEASANTON" Region="4. East".         
+if city = "LIVERMORE" Region="4. East".         
+if city = "SUNOL" Region="4. East".         
+if city = "DUBLIN" Region="4. East".     
+if city = "UNION CITY" Region="3. South".         
+if city = "FREMONT" Region="3. South".         
+if city = "NEWARK" Region="3. South".                 
+if city = "UNKNOWN" Region="6. Unknown".         
+do if OUTCTY = 1.
+compute  Region="5. Out of County".
+end if.
+
+Compute FirstFYCalendar = Calendar.  
+Compute HomelessMC1=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+rename variables city = cityMC1.
+rename variables region = regionMC1.
+
+sort cases by CIN FirstFYCalendar.
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulFY09.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+Get file =  '//covenas/spssdata/MediCalData/meds_Jun09_uncut.sav'.
+Compute LastFYCalendar = Calendar.  
+Compute HomelessMC2=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+rename variables city = cityMC2.
+rename variables region = regionMC2.
+sort cases by CIN LastFYCalendar.
+
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunFY09.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+*Region - Medi-Cal FY10.
+
+Get file =  '//covenas/spssdata/MediCalData/Meds_Jul09_uncut.sav'.
+Compute FirstFYCalendar = Calendar.  
+Compute HomelessMC1=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+rename variables city = cityMC1.
+rename variables region = regionMC1.
+
+sort cases by CIN FirstFYCalendar.
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulFY10.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+Get file =  '//covenas/spssdata/MediCalData/meds_Jun10_uncut.sav'.
+Compute LastFYCalendar = Calendar.  
+Compute HomelessMC2=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+rename variables city = cityMC2.
+rename variables region = regionMC2.
+sort cases by CIN LastFYCalendar.
+
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunFY10.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+*Region - Medi-Cal FY11.
+
+Get file =  '//covenas/spssdata/MediCalData/Meds_Jul10_uncut.sav'.
+Compute FirstFYCalendar = Calendar.  
+Compute HomelessMC1=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+rename variables city = cityMC1.
+rename variables region = regionMC1.
+
+sort cases by CIN FirstFYCalendar.
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulFY11.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+Get file =  '//covenas/spssdata/MediCalData/meds_Jun11_uncut.sav'.
+Compute LastFYCalendar = Calendar.  
+Compute HomelessMC2=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+rename variables city = cityMC2.
+rename variables region = regionMC2.
+sort cases by CIN LastFYCalendar.
+
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunFY11.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+*Region - Medi-Cal FY12.
+
+Get file =  '//covenas/spssdata/MediCalData/Meds_Jul11_uncut.sav'.
+Compute FirstFYCalendar = Calendar.  
+Compute HomelessMC1=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+rename variables city = cityMC1.
+rename variables region = regionMC1.
+
+sort cases by CIN FirstFYCalendar.
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulFY12.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+Get file =  '//covenas/spssdata/MediCalData/meds_Jun12_uncut.sav'.
+Compute LastFYCalendar = Calendar.  
+Compute HomelessMC2=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+rename variables city = cityMC2.
+rename variables region = regionMC2.
+sort cases by CIN LastFYCalendar.
+
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunFY12.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+*Region - Medi-Cal FY13.
+
+Get file =  '//covenas/spssdata/MediCalData/Meds_Jul12_uncut.sav'.
+Compute FirstFYCalendar = Calendar.  
+Compute HomelessMC1=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+rename variables city = cityMC1.
+rename variables region = regionMC1.
+
+sort cases by CIN FirstFYCalendar.
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulFY13.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+Get file =  '//covenas/spssdata/MediCalData/meds_Jun13_uncut.sav'.
+Compute LastFYCalendar = Calendar.  
+Compute HomelessMC2=0. 
+if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+rename variables city = cityMC2.
+rename variables region = regionMC2.
+sort cases by CIN LastFYCalendar.
+
+Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunFY13.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+*GO - ADD COMMENTED OUT CODE BELOW IN SEPTEMBER OF 2014. 
+*Region - Medi-Cal FY13.  
+
+ * Get file =  '//covenas/spssdata/MediCalData/Meds_Jul13_uncut.sav'.
+ * Compute FirstFYCalendar = Calendar.  
+ * Compute HomelessMC1=0. 
+ * if index(upcase(Street), "HOMELESS") ge 1 HomelessMC1=1. 
+ * rename variables city = cityMC1.
+ * rename variables region = regionMC1.
+
+ * sort cases by CIN FirstFYCalendar.
+ * Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JulFY14.sav' 
+/keep  CIN FirstFYCalendar cityMC1 regionMC1 HomelessMC1.
+
+ * Get file =  '//covenas/spssdata/MediCalData/meds_Jun14_uncut.sav'.
+ * Compute LastFYCalendar = Calendar.  
+ * Compute HomelessMC2=0. 
+ * if index(upcase(Street), "HOMELESS") ge 1 HomelessMC2=1. 
+
+ * rename variables city = cityMC2.
+ * rename variables region = regionMC2.
+ * sort cases by CIN LastFYCalendar.
+
+ * Save outfile = '//covenas/decisionsupport/temp/MediCalAddress_JunFY14.sav' 
+/keep  CIN LastFYCalendar cityMC2 regionMC2 HomelessMC2. 
+
+
+*Match Cohort to Medi-Cal Region Data and select appropriate region and city. 
+
+get file = '//covenas/decisionsupport/temp/RegionWork.sav'.
+sort cases by CIN FirstFYCalendar.
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulPreFY09.sav'  /file=* /by CIN FirstFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY09.sav'  /file=* /by CIN FirstFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY10.sav'  /file=* /by CIN FirstFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY11.sav'  /file=* /by CIN FirstFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY12.sav'  /file=* /by CIN FirstFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY13.sav'  /file=* /by CIN FirstFYCalendar. 
+ * GO - Add in September 2014. 
+ * match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY14.sav'  /file=* /by CIN FirstFYCalendar. 
+ * match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JulFY15.sav'  /file=* /by CIN FirstFYCalendar. 
+sort cases by CIN LastFYCalendar.
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunPreFY09.sav'  /file=* /by CIN LastFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY09.sav'  /file=* /by CIN LastFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY10.sav'  /file=* /by CIN LastFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY11.sav'  /file=* /by CIN LastFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY12.sav'  /file=* /by CIN LastFYCalendar. 
+match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY13.sav'  /file=* /by CIN LastFYCalendar. 
+ * GO - Add in September 2014. 
+ * match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY14.sav'  /file=* /by CIN LastFYCalendar. 
+ * match files /table= '//covenas/decisionsupport/temp/MediCalAddress_JunFY15.sav'  /file=* /by CIN LastFYCalendar. 
+
+If regionMHS = "6. Unknown" regionMHS=" ". 
+
+String City(a20).
+String Region(a18). 
+
+Do if RegionMC1 ne "5. Out of County".
+Compute City= CityMC1.
+Compute Region=regionMC1. 
+End if. 
+
+Do if (RegionMC2 ne "5. Out of County") and Region=" ". 
+Compute City= CityMC2.
+Compute Region=regionMC2. 
+End if. 
+
+Do if (RegionMHS ne '5. Out of County') and Region=" ". 
+Compute City= CityMHS.
+Compute Region=regionMHS. 
+End if. 
+
+Do if ((index(upcase(StreetAddressINSYST), "HOMELESS") ge 1) or HomelessMHS=1) and Region=" ". 
+Compute Region='Homeless'. 
+End if. 
+
+Do if (HomelessMC1=1 OR HomelessMC2=1) and Region=" ". 
+Compute Region='Homeless'. 
+End if. 
+
+Do if RegionMC1 ne " " and Region=" ". 
+Compute City= CityMC1.
+Compute Region=regionMC1. 
+End if. 
+
+Do if RegionMC2 ne " " and Region=" ". 
+Compute City= CityMC2.
+Compute Region=regionMC2. 
+End if. 
+
+Do if RegionMHS ne " " and Region=" ". 
+Compute City= CityMHS.
+Compute Region=regionMHS. 
+End if. 
+
+ * sort cases by fiscalyear.
+ * split file by fiscalyear.
+ * freq region. 
+ * freq City. 
+
+If region = " " Region = '6. Unknown'.
+If City  = " " City = 'Unknown'.
+
+Sort cases by FiscalYear Case.
+Save outfile = '//covenas/decisionsupport/Orozco/Temp/CityAndRegion.sav' /keep FiscalYear Case Region City.
+ * get file = '//covenas/decisionsupport/Orozco/Temp/CityAndRegion.sav'.
+*END OF REGION Work.
+
+Get file = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends_AB.sav'.
+Sort cases by FiscalYear Case.
+Match files /table = '//covenas/decisionsupport/Orozco/Temp/CityAndRegion.sav' /file=* /by FiscalYear Case /drop LastFYCalendar FirstFYCalendar.
+if provname = 'BACS IRVINGTON CLC DAY REH FUL' dbservicemodality= 'Day Treatment'. 
+if region = 'Homeless'  Region= "6. Unknown". 
+ * freq city. 
+
+String AC_City(a20).
+Do if (Region ne "6. Unknown") and (Region ne "5. Out of County"). 
+Compute AC_City = City.
+End if.
+ * freq AC_City. 
+
+*Final Save. 
 save outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends.sav'.
 
 *pushbreak.

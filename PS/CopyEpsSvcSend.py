@@ -106,6 +106,9 @@ def copyFiles():
             if 'ALLUR' in afile.upper():
                 uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/decisionsupport/')
                 uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/')
+            if 'MEDICALTABLE' in afile.upper():
+                uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/decisionsupport/')
+                uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/temp/')
     if uptodateList:
         uptodateList.append('<br>The above files were not updated this run, but were updated in last 24 hours')
     else:

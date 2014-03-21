@@ -191,10 +191,9 @@ def promptInfo1():
     (A) add a push to production from existing sequence\n\
     (R) remove push from dev or production\n\
     (P) push sps to Emanio\n\
-    (E) push sps Using ServerEdition\n\
     (O) ODBC refresh or create new push files\n\
         from syntax in dashboarddatasets\n\n   -step one for new push sequence\n\
-    (C) create bat spj for new Sequence\n\
+    (C) create bat spj insert for new Sequence\n\
     (S) search and replace syntax\n\
     (B) print all pushbreaks\n\
     (W) wash the k:/dashboarddatasets with production files\n").upper()
@@ -652,7 +651,7 @@ logging.debug('Finished push %s at '+ str(datetime.now()))
 from datetime import datetime
 import logging
 logging.basicConfig(filename='//bhcsdbv03/emanio/bhcsdbv03.log',level=logging.DEBUG)
-logging.debug('Start chain  at '+ str(datetime.now()))   
+logging.debug('Start chain %s at '+ str(datetime.now()))   
 try:       
     log = open("//bhcsdbv03/emanio/bhcsdbv03psexec.log", 'a+')                  
     c=subprocess.Popen(r"//bhcsdbv03/emanio/Bremote%s.bat", stdout=log, stderr=log, shell=True)
@@ -660,27 +659,27 @@ try:
     #print stderr
     print 'it worked'
 except:
-    logging.exception('Got exception on main handler chain')
+    logging.exception('Got exception on main handler chain %s')
     raise
 
-print 'it worked'""" % DB)        
+print 'it worked'""" % (DB, DB, DB))       
                     with open(r"//bhcsdbv02/emanio/Aremote%s.py" % DB, 'w+') as callpy:
                         callpy.write(r"""import subprocess
 from datetime import datetime
 import logging
 logging.basicConfig(filename='//bhcsdbv02/emanio/bhcsdbv02.log',level=logging.DEBUG)
-logging.debug('Start chain  at '+ str(datetime.now()))   
+logging.debug('Start chain %s at '+ str(datetime.now()))   
 try:                         
-    log = open("//bhcsdbv02/emanio/bhcsdbv02psexec.log", 'a+')                  
+    log = open("//bhcsdbv02/emanio/bhcsdbv02psexec.log", 'a+')               
     c=subprocess.Popen(r"//bhcsdbv02/emanio/Bremote%s.bat", stdout=log, stderr=log, shell=True)
     #stdout, stderr = p.communicate()
     #print stderr
     print 'it worked'
 except:
-    logging.exception('Got exception on main handler chain')
+    logging.exception('Got exception on main handler chain %s')
     raise
 
-print 'it worked'""" % DB)               
+print 'it worked'""" % (DB, DB, DB))               
                     with open(r"//bhcsdbv03/emanio/Bremote%s.bat" % DB, 'w+') as hostfile:
                         hostfile.write(r"""psexec \\bhcsdbv03 -c -f -i \\bhcsdbv03\emanio\CopenPyFile%s.bat -u meinzerc -p %%mypassword%%""" % DB)
                     with open(r"//bhcsdbv02/emanio/Bremote%s.bat" % DB, 'w+') as hostfile:

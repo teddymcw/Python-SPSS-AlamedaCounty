@@ -171,6 +171,7 @@ def main2(run,Files,AlertDays):
                 Finish = datetime.datetime.now().replace( microsecond=0)
                 errorLevel, errorMsg = get_spss_error(e)
                 send_result2(DBname,"Failure in code",Start,Finish,0,'x',cmd,cmd2,cmd3,errorLevel, errorMsg )
+                spss_Output(DBname)  
                 break
             send_output_to_dev(DBname)  
     except IOError:
