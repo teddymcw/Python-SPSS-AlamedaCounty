@@ -1,4 +1,15 @@
+ * max
+ADDRESS_EFFECTIVE_DATE.
 
+
+ * Episodes
+Direct_Services
+Medical_Eligibility
+Clients
+Procedures
+Address
+Staff Master
+Provider_Master.
 
 GET DATA
   /TYPE=ODBC

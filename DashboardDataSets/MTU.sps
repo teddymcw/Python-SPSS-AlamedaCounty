@@ -349,6 +349,10 @@ aggregate outfile =  '//covenas/decisionsupport/temp/MTUStaffHoursByTherapist.sa
 *spsstable=  '//covenas/decisionsupport/temp/MTUStaffHoursByClient.sav'.
 *pushbreak.
 
+*pushbreak.
+*sqlTable = 'MTU_StaffWorkHoursJan14KILLME'.
+*spsstable=  '//covenas/decisionsupport/temp/Jan14WorkHours.sav'.
+*pushbreak.
 
 
 

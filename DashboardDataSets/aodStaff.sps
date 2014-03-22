@@ -1,0 +1,29 @@
+
+GET DATA
+  /TYPE=ODBC
+  /CONNECT='DSN=AOD;UID=;Trusted_Connection=Yes;APP=IBM SPSS Products: Statistics '+
+    'Common;WSID=HPMXL2221NXK;DATABASE=CG_AOD'
+  /SQL='SELECT STAFF_NUMBER AS staff, STAFF_MASK AS "position", STAFF_NAME AS name, SEX AS sex, '+
+    'BIRTH_DATE AS bday, STAFF_ETHNICITY AS ethnic, STAFF_LANGUAGE_MASK AS langcod, STAFF_SSN AS '+
+    'ssn, STAFF_START_DATE AS st_date, STAFF_END_DATE AS end_date, STAFF_STATUS AS st_stat, '+
+    'STAFF_COUNTY_CLASS AS classif FROM CG_AOD.dbo.[STAFF_MASTER]'
+  /ASSUMEDSTRWIDTH=255.
+VARIABLE LABELS staff 'STAFF_NUMBER'.
+VARIABLE LABELS position 'STAFF_MASK'.
+VARIABLE LABELS name 'STAFF_NAME'.
+VARIABLE LABELS sex 'SEX'.
+VARIABLE LABELS bday 'BIRTH_DATE'.
+VARIABLE LABELS ethnic 'STAFF_ETHNICITY'.
+VARIABLE LABELS langcod 'STAFF_LANGUAGE_MASK'.
+VARIABLE LABELS ssn 'STAFF_SSN'.
+VARIABLE LABELS st_date 'STAFF_START_DATE'.
+VARIABLE LABELS end_date 'STAFF_END_DATE'.
+VARIABLE LABELS st_stat 'STAFF_STATUS'.
+VARIABLE LABELS classif 'STAFF_COUNTY_CLASS'.
+CACHE.
+EXECUTE.
+
+
+insert file='//covenas/decisionsupport/meinzer/modules/staffmask.sps'.
+
+save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/aodStaff.sav'.

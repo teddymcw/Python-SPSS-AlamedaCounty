@@ -572,7 +572,7 @@ End if.
  * freq City. 
 
 If region = " " Region = '6. Unknown'.
-If City  = " " City = 'Unknown'.
+If City  = " " City = 'UNKNOWN'.
 
 Sort cases by FiscalYear Case.
 Save outfile = '//covenas/decisionsupport/Orozco/Temp/CityAndRegion.sav' /keep FiscalYear Case Region City.
@@ -586,11 +586,22 @@ if provname = 'BACS IRVINGTON CLC DAY REH FUL' dbservicemodality= 'Day Treatment
 if region = 'Homeless'  Region= "6. Unknown". 
  * freq city. 
 
+*Variable not needed.
 String AC_City(a20).
 Do if (Region ne "6. Unknown") and (Region ne "5. Out of County"). 
 Compute AC_City = City.
 End if.
  * freq AC_City. 
+
+Do If Region = "5. Out of County".
+Compute City = "OUT OF COUNTY".
+End if.
+
+Do If Region = "6. Unknown".
+Compute City = "UNKNOWN".
+End if.
+FREQ CITY. 
+
 
 *Final Save. 
 save outfile = '//covenas/decisionsupport/Orozco/Temp/RUClientsAndCostTrends.sav'.
