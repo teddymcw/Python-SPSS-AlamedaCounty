@@ -22,11 +22,12 @@ def main():
         remove(DB)
         checkInsert(DB)
         returnMain()
-    elif removeOrAdd.upper()=='U': 
-        DB=StageMove(DB)
-        #import pdb; pdb.set_trace();
-        createPushFilesx(primaryFolder,DB)
-        changeDevToProductionx(DB)
+    elif removeOrAdd.upper()=='U':
+        modOrDash = raw_input('type "Module" for module\n\n... otherwise anykey for dash?\n') 
+        DB=StageMove(DB,modOrDash)
+        if 'mod' not in modOrDash.lower():
+            createPushFilesx(primaryFolder,DB)
+            changeDevToProductionx(DB)
         returnMain()
     elif removeOrAdd.upper()=='A':
         ErrorAlertDays,DevProdBoth = promptInfo2()
@@ -191,8 +192,7 @@ def promptInfo1():
     (A) add a push to production from existing sequence\n\
     (R) remove push from dev or production\n\
     (P) push sps to Emanio\n\
-    (O) ODBC refresh or create new push files\n\
-        from syntax in dashboarddatasets\n\n   -step one for new push sequence\n\
+    (O) refresh push files\n\
     (C) create bat spj insert for new Sequence\n\
     (S) search and replace syntax\n\
     (B) print all pushbreaks\n\
@@ -230,11 +230,24 @@ def createFiles(FN):
 # FN=raw_input('what is the name of the .sps file without .sps:\n') 
 # createFiles(FN)
 
-def StageMove(DB):
+def StageMove(DB,modOrDash):
+    # import pdb; pdb.set_trace()
     """ move file from stage to production and remove dev """
     stageFolder = '//covenas/decisionsupport/DashboardDataSets/staging/'
+    dashProdFolder ='//covenas/decisionsupport/meinzer/production/DashboardDataSets/'
+    dashDevFolder = '//covenas/decisionsupport/DashboardDataSets/'
+    modProdFolder ='//covenas/decisionsupport/meinzer/production/modules/'
+    modDevFolder = '//covenas/decisionsupport/modules/'    
+    if 'mod' in modOrDash.lower():
+        print 'you chose Module\n'
+        prodFolder = modProdFolder
+        devFolder = modDevFolder
+    else:
+        print 'you chose DashBoard\n'
+        prodFolder = dashProdFolder
+        devFolder = dashDevFolder
     for afile in os.listdir(stageFolder):
-        if DB.upper() in afile.upper() and os.path.isfile(os.path.join('//covenas/decisionsupport/DashboardDataSets/staging/',afile)):
+        if DB.upper() in afile.upper() and os.path.isfile(os.path.join(stageFolder,afile)):
             raw=raw_input('\nyou have selected %s, \n\n     No to stop,\n     Y to continue\n' % afile) 
             if raw.upper() in 'NO':
                 pass
@@ -246,16 +259,18 @@ def StageMove(DB):
                 afilenodev=re.sub('_dev','',afile, flags=re.I)
                 print 'moving ', afilenodev
                 src=stageFolder+afile
-                dst='//covenas/decisionsupport/meinzer/production/DashboardDataSets/%s' % (afilenodev)
+                dst=prodFolder+'%s' % (afilenodev)
                 shutil.move(src,dst)
-                src='//covenas/decisionsupport/meinzer/production/DashboardDataSets/%s' % (afilenodev)
-                afileWdev=re.sub('\.',r'_Dev.',afilenodev)
-                dst='//covenas/decisionsupport/DashboardDataSets/%s' % (afileWdev)
+                src=prodFolder+'%s' % (afilenodev)
+                if 'mod' in modOrDash.lower():
+                    dst=devFolder+'%s' % (afilenodev)
+                else:
+                    afileWdev=re.sub('\.',r'_Dev.',afilenodev)
+                    dst=devFolder+'%s' % (afileWdev)
                 shutil.copyfile(src,dst)
-                return afilenodev
+                return (afilenodev)
         elif 'BACKUP' in afile.upper() or 'DUMMY' in afile.upper():
                 os.remove(stageFolder+afile)
-
 
 def checkInsert(DB):
     """ remove pushes from insert file """
@@ -439,7 +454,7 @@ insert file='//covenas/decisionsupport/meinzer/production/ps/errorTestPickles.sp
     xx = raw_input("control c to stop, \notherwise hit any key")
     errorList=[]
     try:
-        startEmail(DB, who)
+        startEmail(DB, who,liststring)
         FNULL=open(os.devnull,'w')
         subprocess.call(r"\\covenas\decisionsupport\meinzer\production\bat\temp\%s.bat" % DB,stdout=FNULL,stderr=subprocess.STDOUT)
         FNULL.close()
@@ -548,6 +563,7 @@ logging.debug('Start push  at '+ str(datetime.now()))
 benchmarkstart=datetime.now()
 
 def sendTOSQL(csvLocation,sqlTableName):
+    x=0
     with open (csvLocation, 'r') as f:
         reader = csv.reader(f)
         columns = next(reader) 
@@ -565,6 +581,10 @@ def sendTOSQL(csvLocation,sqlTableName):
                 for data in reader:
                     cursor.execute(query, data)
                 cursor.commit()
+                if x % 1000000==0:
+                    xstar=str(x)[0]
+                    logging.debug(r'%s,000,000 rows processed and counting' % (xstar))
+                x=x+1
 """                  
     return SQLPushbase
 
@@ -766,7 +786,7 @@ def changeDevToProductionx(DB):
     except:
         print '\n   ********Hey    No push file, was that expect?'
 
-def startEmail(DB, whox):  
+def startEmail(DB, whox,whatFile):  
     list=[]
     if 'CHE' in whox.upper():
      list.append('cmeinzer@acbhcs.org')
@@ -794,8 +814,8 @@ def startEmail(DB, whox):
         html = """\
         <html>
           <head>Processing your request!<br></head>
-            </html> 
-        """ 
+            </html> <br> %s
+        """ % whatFile
         body=html
         subject = 'Processing your request to run %s! ' % DB
         headers = ["From: " + sender,
@@ -818,9 +838,10 @@ def startEmail(DB, whox):
         html = """\
         <html>
           <head>Running your request!</head>
-                  <br>
+                  <br><br> %s
+        
         </html> 
-        """ 
+        """ % whatFile 
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subjectline
         msg['From'] = SendEmailFrom

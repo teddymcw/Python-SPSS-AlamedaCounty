@@ -86,8 +86,9 @@ op_flag 'PROJECT_VIEW.EPISODE_STATUS_FLAG'
 pfn 'PROJECT_VIEW.SPECIAL_CONTRACT_NUMBER'.
 CACHE.
 EXECUTE.
+save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/AODEpisodes.sav' .
 
 *check how closdate works in aod.
-insert file='//covenas/decisionsupport/meinzer/production/ps/AODEpisodes.sps'.
+ * insert file='//covenas/decisionsupport/meinzer/production/ps/AODEpisodes.sps'.
 
 

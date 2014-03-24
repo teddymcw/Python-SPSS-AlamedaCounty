@@ -6,7 +6,6 @@ rename vars primdx=dx.
 sort cases by dx.
 match files /file=* /table='//covenas/decisionsupport/dxtable.sav' /by dx /keep ru case opdate epflag PrimaryTherapist agency provname closdate LastService dx dx_descr.
 
-
 select if  closdate ge datesum($time,-3,'years') or missing(closdate).
 *freq closdate opdate /formats=notable /stast=min max.
 

@@ -85,7 +85,7 @@ def copyFiles():
     uptodateList=[]
     for afile in os.listdir(primaryFolder):
         if afile.upper().endswith('.SAV'):
-            if 'EPS_YEAR' in afile.upper():
+            if 'EPISODES' in afile.upper():
                 uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/decisionsupport/')
                 uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/')
             if 'SERVICES' in afile.upper():
@@ -108,7 +108,10 @@ def copyFiles():
                 uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/')
             if 'MEDICALTABLE' in afile.upper():
                 uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/decisionsupport/')
-                uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/temp/')
+                uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/')
+            if 'ADDRESS' in afile.upper():
+                uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/decisionsupport/')
+                uptodateList,resultList,errorList=tryCopy(uptodateList,resultList,errorList,afile,'//covenas/spssdata/')                
     if uptodateList:
         uptodateList.append('<br>The above files were not updated this run, but were updated in last 24 hours')
     else:

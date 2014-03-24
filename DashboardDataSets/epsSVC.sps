@@ -92,7 +92,7 @@ select if opdate ge date.dmy(1,1,2007) OR epflag = "O" OR closdate ge date.dmy(1
 *save outfile='//covenas/decisionsupport/Eps08now.sav'  /drop Staff gaf opgaf pastgaf .
 *save outfile='//covenas/spssdata/Eps08now.sav'  /drop Staff gaf opgaf pastgaf .
 
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/epstemp.sav'.
+save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/Episodes.sav' /drop PrimaryTherapist.
 
 add files
           /file="//covenas/spssdata/housing\Adliv_BigEpFile.sav"
@@ -113,79 +113,79 @@ execute.
 select if drop=0.
 save outfile="//covenas/spssdata/housing\Adliv_BigEpFile.sav"/drop drop.
 
-get file='//covenas/decisionsupport/Meinzer/Production/Backup/stage//epstemp.sav'.
+ * get file='//covenas/decisionsupport/Meinzer/Production/Backup/stage//epstemp.sav'.
 
-temp.
-select if opdate lt date.dmy(1,1,2001) and ((closdate) ge date.dmy(1,1,2000) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2001) and ((closdate) ge date.dmy(1,1,2000) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2000.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2000.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2000.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2002) and ((closdate) ge date.dmy(1,1,2001) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2002) and ((closdate) ge date.dmy(1,1,2001) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2001.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2001.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2001.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2003) and ((closdate) ge date.dmy(1,1,2002) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2003) and ((closdate) ge date.dmy(1,1,2002) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2002.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2002.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2002.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2004) and ((closdate) ge date.dmy(1,1,2003) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2004) and ((closdate) ge date.dmy(1,1,2003) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2003.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2003.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2003.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2005) and ((closdate) ge date.dmy(1,1,2004) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2005) and ((closdate) ge date.dmy(1,1,2004) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2004.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2004.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2004.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2006) and ((closdate) ge date.dmy(1,1,2005) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2006) and ((closdate) ge date.dmy(1,1,2005) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2005.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2005.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2005.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2007) and ((closdate) ge date.dmy(1,1,2006) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2007) and ((closdate) ge date.dmy(1,1,2006) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2006.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2006.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2006.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2008) and ((closdate) ge date.dmy(1,1,2007) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2008) and ((closdate) ge date.dmy(1,1,2007) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2007.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2007.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2007.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2009) and ((closdate) ge date.dmy(1,1,2008) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2009) and ((closdate) ge date.dmy(1,1,2008) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2008.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2008.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2008.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2010) and ((closdate) ge date.dmy(1,1,2009) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2010) and ((closdate) ge date.dmy(1,1,2009) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2009.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2009.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2009.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2011) and ((closdate) ge date.dmy(1,1,2010) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2011) and ((closdate) ge date.dmy(1,1,2010) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2010.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2010.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2010.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2012) and ((closdate) ge date.dmy(1,1,2011) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2012) and ((closdate) ge date.dmy(1,1,2011) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2011.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2011.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2011.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2013) and ((closdate) ge date.dmy(1,1,2012) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2013) and ((closdate) ge date.dmy(1,1,2012) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2012.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2012.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2012.sav' /drop PrimaryTherapist.
 
-temp.
-select if opdate lt date.dmy(1,1,2014) and ((closdate) ge date.dmy(1,1,2013) or closdate lt date.dmy(1,1,1901)).
+ * temp.
+ * select if opdate lt date.dmy(1,1,2014) and ((closdate) ge date.dmy(1,1,2013) or closdate lt date.dmy(1,1,1901)).
 *xsave outfile='//covenas/decisionsupport/eps_year_2013.sav' /drop PrimaryTherapist.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2013.sav' /drop PrimaryTherapist.
+ * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/eps_year_2013.sav' /drop PrimaryTherapist.
 
-insert file='//covenas/decisionsupport/meinzer/production/ps/modules/epsadd.sps'.
+ * insert file='//covenas/decisionsupport/meinzer/production/ps/modules/epsadd.sps'.
 
 
 

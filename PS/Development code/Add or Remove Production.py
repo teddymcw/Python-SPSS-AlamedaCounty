@@ -22,11 +22,12 @@ def main():
         remove(DB)
         checkInsert(DB)
         returnMain()
-    elif removeOrAdd.upper()=='U': 
-        DB=StageMove(DB)
-        #import pdb; pdb.set_trace();
-        createPushFilesx(primaryFolder,DB)
-        changeDevToProductionx(DB)
+    elif removeOrAdd.upper()=='U':
+        modOrDash = raw_input('type "Module" for module\n\n... otherwise anykey for dash?\n') 
+        DB=StageMove(DB,modOrDash)
+        if 'mod' not in modOrDash.lower():
+            createPushFilesx(primaryFolder,DB)
+            changeDevToProductionx(DB)
         returnMain()
     elif removeOrAdd.upper()=='A':
         ErrorAlertDays,DevProdBoth = promptInfo2()
@@ -191,10 +192,8 @@ def promptInfo1():
     (A) add a push to production from existing sequence\n\
     (R) remove push from dev or production\n\
     (P) push sps to Emanio\n\
-    (E) push sps Using ServerEdition\n\
-    (O) ODBC refresh or create new push files\n\
-        from syntax in dashboarddatasets\n\n   -step one for new push sequence\n\
-    (C) create bat spj for new Sequence\n\
+    (O) refresh push files\n\
+    (C) create bat spj insert for new Sequence\n\
     (S) search and replace syntax\n\
     (B) print all pushbreaks\n\
     (W) wash the k:/dashboarddatasets with production files\n").upper()
@@ -215,24 +214,40 @@ def createFiles(FN):
     for item in os.listdir('c:/program files/ibm/spss/statistics/'):
         if '22' in item:
             spssV='22'
-    batstring=r""""C:\Program Files\IBM\SPSS\Statistics\22\stats.exe" -production "//covenas/decisionsupport/Meinzer\Production\SPJ\%s.spj" """ % (FN)
-    spjstring=r"""<?xml version="1.0" encoding="UTF-8"?><job print="false" syntaxErrorHandling="continue" syntaxFormat="interactive" unicode="false" xmlns="http://www.ibm.com/software/analytics/spss/xml/production" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xs//covenas/spssdata/schemaLocation="http://www.ibm.com/software/analytics/spss/xml/production http://www.ibm.com/software/analytics/spss/xml/production/production-1.3.xsd"><output outputFormat="viewer" outputPath="//covenas/decisionsupport/Meinzer\Production\Output\production made\%s.spv"/><syntax syntaxPath="//covenas/decisionsupport/Meinzer\Production\Insert\%s.sps"/></job>""" % (FN,FN)
+    batstring=r""""C:\Program Files\IBM\SPSS\Statistics\22\stats.exe" "\\covenas\decisionsupport\Meinzer\Production\SPJ\%s.spj" -production -server bhcsstat1:3022 -user program\meinzerc -password %%cpw%%""" % (FN)
+    spjstring=r"""<?xml version="1.0" encoding="UTF-8"?><job print="false" syntaxErrorHandling="continue" syntaxFormat="interactive" unicode="false" xmlns="http://www.ibm.com/software/analytics/spss/xml/production" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ibm.com/software/analytics/spss/xml/production http://www.ibm.com/software/analytics/spss/xml/production/production-1.3.xsd"><output outputFormat="viewer" outputPath="\\covenas\decisionsupport\Meinzer\Production\Output\production made\%s.spv"/><syntax syntaxPath="\\covenas\decisionsupport\Meinzer\Production\Insert\%s.sps"/></job>""" % (FN,FN)
     SPJloc="//covenas/decisionsupport/Meinzer/Production/SPJ/%s.spj" % FN
     BATloc="//covenas/decisionsupport/Meinzer/Production/bat/%s.bat" % FN
     with open(SPJloc,'w') as spj:
         spj.write(spjstring)
     with open(BATloc,'w') as bat:
-        bat.write(batstring)    
+        bat.write(batstring)   
+    if not os.path.isfile(r"\\covenas\decisionsupport\Meinzer\Production\insert\%s.sps" % FN):
+        with open(r"\\covenas\decisionsupport\Meinzer\Production\insert\%s.sps" % FN,'w') as insert:
+            insert.write("*fresh insert file.")          
 
 
 # FN=raw_input('what is the name of the .sps file without .sps:\n') 
 # createFiles(FN)
 
-def StageMove(DB):
+def StageMove(DB,modOrDash):
+    # import pdb; pdb.set_trace()
     """ move file from stage to production and remove dev """
     stageFolder = '//covenas/decisionsupport/DashboardDataSets/staging/'
+    dashProdFolder ='//covenas/decisionsupport/meinzer/production/DashboardDataSets/'
+    dashDevFolder = '//covenas/decisionsupport/DashboardDataSets/'
+    modProdFolder ='//covenas/decisionsupport/meinzer/production/modules/'
+    modDevFolder = '//covenas/decisionsupport/modules/'    
+    if 'mod' in modOrDash.lower():
+        print 'you chose Module\n'
+        prodFolder = modProdFolder
+        devFolder = modDevFolder
+    else:
+        print 'you chose DashBoard\n'
+        prodFolder = dashProdFolder
+        devFolder = dashDevFolder
     for afile in os.listdir(stageFolder):
-        if DB.upper() in afile.upper() and os.path.isfile(os.path.join('//covenas/decisionsupport/DashboardDataSets/staging/',afile)):
+        if DB.upper() in afile.upper() and os.path.isfile(os.path.join(stageFolder,afile)):
             raw=raw_input('\nyou have selected %s, \n\n     No to stop,\n     Y to continue\n' % afile) 
             if raw.upper() in 'NO':
                 pass
@@ -244,16 +259,18 @@ def StageMove(DB):
                 afilenodev=re.sub('_dev','',afile, flags=re.I)
                 print 'moving ', afilenodev
                 src=stageFolder+afile
-                dst='//covenas/decisionsupport/meinzer/production/DashboardDataSets/%s' % (afilenodev)
+                dst=prodFolder+'%s' % (afilenodev)
                 shutil.move(src,dst)
-                src='//covenas/decisionsupport/meinzer/production/DashboardDataSets/%s' % (afilenodev)
-                afileWdev=re.sub('\.',r'_Dev.',afilenodev)
-                dst='//covenas/decisionsupport/DashboardDataSets/%s' % (afileWdev)
+                src=prodFolder+'%s' % (afilenodev)
+                if 'mod' in modOrDash.lower():
+                    dst=devFolder+'%s' % (afilenodev)
+                else:
+                    afileWdev=re.sub('\.',r'_Dev.',afilenodev)
+                    dst=devFolder+'%s' % (afileWdev)
                 shutil.copyfile(src,dst)
-                return afilenodev
+                return (afilenodev)
         elif 'BACKUP' in afile.upper() or 'DUMMY' in afile.upper():
                 os.remove(stageFolder+afile)
-
 
 def checkInsert(DB):
     """ remove pushes from insert file """
@@ -437,7 +454,7 @@ insert file='//covenas/decisionsupport/meinzer/production/ps/errorTestPickles.sp
     xx = raw_input("control c to stop, \notherwise hit any key")
     errorList=[]
     try:
-        startEmail(DB, who)
+        startEmail(DB, who,liststring)
         FNULL=open(os.devnull,'w')
         subprocess.call(r"\\covenas\decisionsupport\meinzer\production\bat\temp\%s.bat" % DB,stdout=FNULL,stderr=subprocess.STDOUT)
         FNULL.close()
@@ -581,7 +598,7 @@ def createPushFilesx(primaryFolder,DB):
             if 'PUSHBREAK' in code.upper():
                 results=re.split('pushbreak\\.',code,flags=re.M)
                 for i in results:
-                    if 'SKIPROW' in i.upper() or 'REMOTEPUSH'in i.upper():
+                    if 'SKIPROW' in i.upper() or 'REMOTEPUSH'in i.upper() or 'REMOTE PUSH'in i.upper():
                         skipRow=1
                     else:
                         skipRow=0
@@ -649,39 +666,39 @@ logging.debug('Finished push %s at '+ str(datetime.now()))
 from datetime import datetime
 import logging
 logging.basicConfig(filename='//bhcsdbv03/emanio/bhcsdbv03.log',level=logging.DEBUG)
-logging.debug('Start chain  at '+ str(datetime.now()))   
+logging.debug('Start chain %s at '+ str(datetime.now()))   
 try:       
-    log = open("//bhcsdbv03/emanio/bhcsdbv03.log", 'a')                  
+    log = open("//bhcsdbv03/emanio/bhcsdbv03psexec.log", 'a+')                  
     c=subprocess.Popen(r"//bhcsdbv03/emanio/Bremote%s.bat", stdout=log, stderr=log, shell=True)
     #stdout, stderr = p.communicate()
     #print stderr
     print 'it worked'
 except:
-    logging.exception('Got exception on main handler chain')
+    logging.exception('Got exception on main handler chain %s')
     raise
 
-print 'it worked'""" % DB)        
+print 'it worked'""" % (DB, DB, DB))       
                     with open(r"//bhcsdbv02/emanio/Aremote%s.py" % DB, 'w+') as callpy:
                         callpy.write(r"""import subprocess
 from datetime import datetime
 import logging
 logging.basicConfig(filename='//bhcsdbv02/emanio/bhcsdbv02.log',level=logging.DEBUG)
-logging.debug('Start chain  at '+ str(datetime.now()))   
+logging.debug('Start chain %s at '+ str(datetime.now()))   
 try:                         
-    log = open("//bhcsdbv02/emanio/bhcsdbv02.log", 'a')                  
+    log = open("//bhcsdbv02/emanio/bhcsdbv02psexec.log", 'a+')               
     c=subprocess.Popen(r"//bhcsdbv02/emanio/Bremote%s.bat", stdout=log, stderr=log, shell=True)
     #stdout, stderr = p.communicate()
     #print stderr
     print 'it worked'
 except:
-    logging.exception('Got exception on main handler chain')
+    logging.exception('Got exception on main handler chain %s')
     raise
 
-print 'it worked'""" % DB)               
+print 'it worked'""" % (DB, DB, DB))               
                     with open(r"//bhcsdbv03/emanio/Bremote%s.bat" % DB, 'w+') as hostfile:
                         hostfile.write(r"""psexec \\bhcsdbv03 -c -f -i \\bhcsdbv03\emanio\CopenPyFile%s.bat -u meinzerc -p %%mypassword%%""" % DB)
                     with open(r"//bhcsdbv02/emanio/Bremote%s.bat" % DB, 'w+') as hostfile:
-                        hostfile.write(r"""psexec \\bhcsdbv02 -c -f \\bhcsdbv02\emanio\CopenPyFile%s.bat -u meinzerc -p %%mypassword%%""" % DB)                        
+                        hostfile.write(r"""psexec \\bhcsdbv02 -c -f -i \\bhcsdbv02\emanio\CopenPyFile%s.bat -u meinzerc -p %%mypassword%%""" % DB)                        
                     # with open(r"//bhcsdbv02/emanio/Aremote%s.bat" % DB, 'w+') as hostfile:
                     #     hostfile.write(r"""psexec \\bhcsdbv02 -c -f \\bhcsdbv02\emanio\CopenPyFile%s.bat""" % DB)                        
                     with open(r"\\bhcsdbv03\emanio\CopenPyFile%s.bat" % DB, 'w+') as batToPy:
@@ -764,7 +781,7 @@ def changeDevToProductionx(DB):
     except:
         print '\n   ********Hey    No push file, was that expect?'
 
-def startEmail(DB, whox):  
+def startEmail(DB, whox,whatFile):  
     list=[]
     if 'CHE' in whox.upper():
      list.append('cmeinzer@acbhcs.org')
@@ -792,8 +809,8 @@ def startEmail(DB, whox):
         html = """\
         <html>
           <head>Processing your request!<br></head>
-            </html> 
-        """ 
+            </html> <br> %s
+        """ % whatFile
         body=html
         subject = 'Processing your request to run %s! ' % DB
         headers = ["From: " + sender,
@@ -816,9 +833,10 @@ def startEmail(DB, whox):
         html = """\
         <html>
           <head>Running your request!</head>
-                  <br>
+                  <br><br> %s
+        
         </html> 
-        """ 
+        """ % whatFile 
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subjectline
         msg['From'] = SendEmailFrom
