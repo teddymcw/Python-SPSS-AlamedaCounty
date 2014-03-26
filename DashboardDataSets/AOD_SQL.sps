@@ -37,6 +37,9 @@ COMPUTE quarter=XDATE.QUARTER(svcdate).
 
 insert file='//covenas/decisionsupport/meinzer/production/ps/AODServices.sps'.
 
+select if svcdate ge date.dmy(1,1,2010).
+save outfile='//covenas/decisionsupport/meinzer/production/backup/stage/aodDBSVC.sav'.
+
 GET DATA
   /TYPE=ODBC
   /CONNECT='DSN=AOD;UID=;Trusted_Connection=Yes;APP=IBM SPSS Products: Statistics '+

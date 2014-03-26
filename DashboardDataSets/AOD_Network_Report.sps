@@ -1,18 +1,14 @@
+ * DEFINE DBstartdate() date.dmy(1,7,2012) !ENDDEFINE.
+
+ * insert file='//covenas/decisionsupport/meinzer/modules/aodsvcepcreate.sps'.
+
+
+
 DEFINE DBstartdate() date.dmy(1,7,2012) !ENDDEFINE.
 
-insert file='//covenas/decisionsupport/meinzer/modules/aodsvcepcreate.sps'.
-
-
-
-DEFINE DBstartdate() date.dmy(1,7,2012) !ENDDEFINE.
-
-get file="//covenas/decisionsupport/temp/aod11SVCtocurrent.sav".
+get file="//covenas/decisionsupport/aoddbsvc.sav".
 
 select if xdate.tday(svcdate) ge yrmoda(2011,07,01).
-
-save outfile="//covenas/decisionsupport/temp/aod13c.sav".
-
-get file="//covenas/decisionsupport/temp/aod13c.sav".
 
 * The NoShow module is for MH.
 * insert file='//covenas/decisionsupport/modules/noshow.sps'.
