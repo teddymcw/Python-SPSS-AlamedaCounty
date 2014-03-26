@@ -40,7 +40,6 @@ rename vars primarytherapist=staffname name=clientname.
 
 save outfile='//covenas/decisionsupport/meinzer/temp/Dashboard_svc3yearsy.sav'.
 
-
 *pushbreak.
 *skiprow.
 *sqlTable =Dashboard_svc3years.

@@ -321,3 +321,17 @@ save outfile = '//covenas/decisionsupport/temp\DemographicsWork.sav'
 *pushbreak.
 
 
+select if any(ru, "81931", "81441", "81442", "88036", "01101", "01D81", "01E81", "01GF1", "01GG1", "018435", "01FH1", "01FK1", "01FK2", "81935", "01ES1", "01E31").
+save outfile = '//covenas/decisionsupport/temp\TAYDemographicsWork.sav'
+   /keep FiscalYear agency ru provname RUProgram case opdate closdate SVCDATE primdx dx_descr DxCategory 
+    SPMI SED potSPMI dx_grpDSM dx_grpAdult language languageDetail LanguageSort LanguageDetailSort calendar 
+   Age ClientAge sex Gender ethnicity EthnicSort EthnicDetail EthnicDetailSort city region RegionSort psmask2 MCSvcCat 
+   ClientAnnualCostperCatandPSMASK2 InsuranceType medical medicare SpecialPopulation FYFoster FYdisabled 
+   uninsured medimedi FyFirstSvcDate ClientCostGroup epflag dbservicemodality psmasktext uncookedmonth datathru.
+
+
+*pushbreak.
+*sqlTable = 'TAYDemographic_Dashboard'.
+*spsstable='//covenas/decisionsupport/temp\DemographicsWork.sav'.
+*pushbreak.
+
