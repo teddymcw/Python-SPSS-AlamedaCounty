@@ -14,6 +14,7 @@ primaryFolder='//covenas/decisionsupport/meinzer/production/DashboardDatasets/'
 logging.basicConfig(filename='//covenas/decisionsupport/meinzer/production/output/productionMenu.log',level=logging.DEBUG)
 logging.debug('Production System '+ str(datetime.now())+' log in //covenas/decisionsupport/meinzer/production/output/productionSystem.log //covenas/decisionsupport/meinzer/production/output/ProductionMenduDeBug.txt')
 
+
 def main():
     """ the function pusher """
     print 'welcome to Buisness Analytics Dashboard Push System!\n'
@@ -23,7 +24,7 @@ def main():
         checkInsert(DB)
         returnMain()
     elif removeOrAdd.upper()=='U':
-        modOrDash = raw_input('type "Module" for module\n\n... otherwise anykey for dash?\n') 
+        modOrDash = raw_input('\n\ntype "Module" if this is a module\n\n... otherwise anykey for dash?\n') 
         DB=StageMove(DB,modOrDash)
         if 'mod' not in modOrDash.lower():
             createPushFilesx(primaryFolder,DB)
@@ -550,7 +551,7 @@ def makeRemoteSyntax(spssTable,SQLtable):
      """ % (spssTable,SQLtable,SQLtable)
     return Syntax
 
-def makeSQLPushbase():
+def makeSQLPushbase(SQLtable):
     SQLPushbase=r"""
 import re
 import pyodbc
@@ -559,7 +560,7 @@ import csv
 import logging
 
 logging.basicConfig(filename='//bhcsdbv03/emanio/bhcsdbv03.log',level=logging.DEBUG)
-logging.debug('Start push  at '+ str(datetime.now()))
+logging.debug('Start push %s at '+ str(datetime.now()))
 benchmarkstart=datetime.now()
 
 def sendTOSQL(csvLocation,sqlTableName):
@@ -580,12 +581,19 @@ def sendTOSQL(csvLocation,sqlTableName):
                 cursor = cnxn.cursor()
                 for data in reader:
                     cursor.execute(query, data)
+                    if x %% 1000000==0:
+                        if len(str(x)) > 7:
+                            xstar=str(x)[0:2]
+                        else:
+                            xstar=str(x)[0]
+                        if xstar=='0':
+                            logging.debug(r'processing and counting rows to a million' )
+                        else:
+                            logging.debug(r'%%s,000,000 rows processed and counting' %% (xstar))
+                    x=x+1
                 cursor.commit()
-                if x % 1000000==0:
-                    xstar=str(x)[0]
-                    logging.debug(r'%s,000,000 rows processed and counting' % (xstar))
-                x=x+1
-"""                  
+
+"""     % (SQLtable)             
     return SQLPushbase
 
 def createPushFilesx(primaryFolder,DB):
@@ -636,7 +644,7 @@ def createPushFilesx(primaryFolder,DB):
                             if skipRow==1:
                                 hostcmd=r"""host command=['c:\python27\python "//bhcsdbv03/emanio/Aremote%s.py"'].""" % DB
                                 Syntax=makeRemoteSyntax(spssTable,SQLtable)
-                                SQLPushbase=makeSQLPushbase()
+                                SQLPushbase=makeSQLPushbase(SQLtable)
                                 line0=r"""benchmarkend=datetime.now()"""
                                 line1=r"""FinishText = benchmarkend.strftime("%m-%d-%y %H:%M")"""
                                 line2=r"""StartText = benchmarkstart.strftime("%m-%d-%y %H:%M")"""
@@ -673,7 +681,7 @@ import logging
 logging.basicConfig(filename='//bhcsdbv03/emanio/bhcsdbv03.log',level=logging.DEBUG)
 logging.debug('Start chain %s at '+ str(datetime.now()))   
 try:       
-    log = open("//bhcsdbv03/emanio/bhcsdbv03psexec.log", 'a+')                  
+    log = open("//bhcsdbv03/emanio/bhcsdbv03psexec.log", 'w+')                  
     c=subprocess.Popen(r"//bhcsdbv03/emanio/Bremote%s.bat", stdout=log, stderr=log, shell=True)
     #stdout, stderr = p.communicate()
     #print stderr
@@ -690,7 +698,7 @@ import logging
 logging.basicConfig(filename='//bhcsdbv02/emanio/bhcsdbv02.log',level=logging.DEBUG)
 logging.debug('Start chain %s at '+ str(datetime.now()))   
 try:                         
-    log = open("//bhcsdbv02/emanio/bhcsdbv02psexec.log", 'a+')               
+    log = open("//bhcsdbv02/emanio/bhcsdbv02psexec.log", 'w+')               
     c=subprocess.Popen(r"//bhcsdbv02/emanio/Bremote%s.bat", stdout=log, stderr=log, shell=True)
     #stdout, stderr = p.communicate()
     #print stderr
