@@ -1,0 +1,23 @@
+Introduction
+
+I brought Python and Pandas to Alameda County Government replacing excel and ms access databases (that served as web gui's)!  Many did not believe this was possible.  Now, I process all data with python and I even error check the existing IBM SPSS (legacy language) code with a python error testor and report writer.  Also, I built a custom interphase for the entire agency workflow and wrote a protocal for code review.  My version control workflow interface controls code staging, pushing to production after review, and sending to a sql server using simultanious processing (all code for this gui on github).  
+
+My recent innovation
+
+My improvements caused code process time to decrease by 50% and sql inserts to be sent 300-800% faster (when i started they were sending 200/sec, and i am sending 2,000/sec while processing other data jobs.  Prior to my simultanious process innovation, running code and sending to a sql server for a large job would take 45 hours at a 50% success rate, and now my code accomplishes the same in 3 hours with a 99% sucess rate and full error log reporting that is sent to my iphone from the County server.  
+
+Why i'm right for your team
+
+My mantra is work hard and never stop learning.
+I'm passionate about data and data visulizations and have a lot of experience in healthcare.  I know how limited that data infastructure is in the government, and i know what their needs our.  I can help make a product that will improve buisness inteligence for the government by providing a better product than exists and for way less money (literarlly helping the poorest of poor, and saving the government money).  Currently, the government has a half million dollar contract that is minimally effective at providing visulizations.  I can do better.  
+ 
+
+Why you are right for me
+
+I am rappidly gaining skills and I am ready to stick my foot in the job market. At the government I am a one man team (which means I work well autonomously) without anyone at my level because I am at the top of technical expertise.  I enjoy the work i'm doing, but I need to work with people with my level of passion and ability to learn.  My next coolaborations will be to build truely amazing innovations, and I hope I get a chance to do this with your group.  In order to work on my code (so it doesn't look like i work alone) I attend regular meetups and py classes.  For example, in my free time, i'm building a web app to graph the Sunlight Foundation API congressional speech data (using flot, but i'm also learning some d3). I'll send you an update when it is deployed. 
+
+I live at 9th and folsom, and I can come by anytime to chat.  I'm a regular at noise bridge and meetups where you can find me with my ubuntu chromebook or out surfing the ocean.
+
+I look forward to hearing from you,
+Chet Meinzer
+817 229 8992
