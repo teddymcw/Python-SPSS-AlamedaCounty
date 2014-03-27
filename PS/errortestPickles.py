@@ -6,6 +6,10 @@ import re, os
 import datetime
 import logging
 
+
+
+
+
 logging.basicConfig(filename='//covenas/decisionsupport/meinzer/production/output/errortestPickles.log',level=logging.DEBUG)
 logging.debug('Production System '+ str(datetime.datetime.now())+' log in //covenas/decisionsupport/meinzer/production/output/errorTestPicklesx.log //covenas/decisionsupport/meinzer/production/output/ErrorTestPickles.txt')
 
@@ -23,6 +27,8 @@ print 'the computer is ', computerName
 #when='x'
 
 def whenRun(when):
+    """ The gui passes in the when as a string non comma separated values
+        alert day is based on the most strict time, i.e. daily will trump yearly and alert if file not run in 4 days"""
     AlertDays=99
     run=0
     if 'ALWA' in when.upper():
@@ -89,7 +95,8 @@ def whenRun(when):
     return(run,AlertDays)
 
 def main(run,Files,AlertDays):
-    """The parser and processor for Syntax Error Reporting """
+    """The parser and processor for Syntax Error Reporting. 
+    need to merge with main two, but need to figure out """
     Finish = datetime.datetime.now().replace( microsecond=0)
     SavedNewname=0 
     try:
@@ -128,9 +135,8 @@ def main(run,Files,AlertDays):
                 else:
                     result='Not Scheduled to run'
                     Finish = datetime.datetime.now().replace( microsecond=0)
-                    status=-1
                     spss_Output(DBname)
-                    send_result(run,DBname,result,Start,Finish,status,AlertDays)  
+                    send_result(run,DBname,result,Start,Finish,-1,AlertDays)  
                 send_output_to_dev(DBname)                        
     except IOError:
         print "can't open file, difficulty initializing comands from spss, or couldn't find output"
@@ -138,10 +144,13 @@ def main(run,Files,AlertDays):
         spss_Output(DBname)
 
 def main2(run,Files,AlertDays):
-    """The parser and processor for Syntax Error Reporting """
+    """The parser and processor for Syntax Error Reporting 
+    this version is for on the fly running without a production instance"""
     errorLevel='0'
     errorMsg='No Error'
     SavedNewname=0 
+    Start = datetime.datetime.now().replace( microsecond=0)
+    Finish = datetime.datetime.now().replace( microsecond=0)   
     try:
         for FilePath in Files:
             Start = datetime.datetime.now().replace( microsecond=0)
@@ -232,7 +241,7 @@ def run_cmds(cmd,cmd2,cmd3,cmds):
     return (cmd, cmd2, cmd3)
 
 def send_result(run,DBname,result,Start,Finish,status,AlertDays,cmd='',cmd2='',cmd3='',errorLevel='', errorMsg=''):
-    """ """
+    """Take a look at using status as it is not in use now """
     print result + ' was sent for '+DBname
     FinishText = Finish.strftime("%m-%d-%y %H:%M")
     StartText = Start.strftime("%m-%d-%y %H:%M")

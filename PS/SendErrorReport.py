@@ -49,19 +49,19 @@ def main(SendEmailTo,SendEmailFrom):
     # return(SendEmailFrom,SendEmailTo)
 #dataResults='//covenas/decisionsupport/Meinzer/production/output/errorcsv.txt'
 def initPull(dataResults):
-    df=pd.read_csv(dataResults, names=['File','Status','Date','Error','AlertDays'])
-    df=df.convert_objects(convert_numeric=True)
-    df=df[pd.notnull(df['AlertDays'])]
+    """calculate the alert for each file """
+    dfs=pd.read_csv(dataResults, names=['File','Status','Date','Error','AlertDays'])
+    dfs=dfs.convert_objects(convert_numeric=True)
+    df=dfs[pd.notnull(dfs['AlertDays'])]
     dmax=pd.DataFrame(df.groupby('File').max().reset_index())
     dmaxlim=dmax[['File','Date']]
     dfalert=pd.merge(dmaxlim,df,on=['File','Date'],how='left')
     dfalert=dfalert[['File','Date','AlertDays']]
-    df=pd.read_csv(dataResults, names=['File','Status','Date','Error','AlertDays'])
-    df=df.convert_objects(convert_numeric=True)
-    df=df[df.Status ==  1]
+    #start with only successful...
+    df=dfs[dfs.Status ==  1]
     #df=df[(~df['File'].str.upper().str.contains('TEST')) | (~df['File'].str.upper().str.contains('New'))]
     df=df[(~df['File'].str.upper().str.contains('TEST'))]
-    df=df[(~df['File'].str.upper().str.contains('New'))]
+    df=df[(~df['File'].str.upper().str.contains('NEW'))]
     df['Date']=pd.to_datetime(df['Date'])
     xx=df.groupby('File')['Date'].max()
     # xx=df.groupby('File')
@@ -73,7 +73,14 @@ def initPull(dataResults):
     df=pd.merge(df,dfalert,on=['File'],how='left')
     df=df[(df['diff'] >= df['AlertDays'])]
     df['alert']=1
+    #
     df.to_csv('//covenas/decisionsupport/meinzer/temp/errorlogicsort.csv')
+    neverRun=dfs.groupby('File')['Status'].max().reset_index()
+    df=neverRun[neverRun.Status==0]
+    df=df[~df['File'].str.upper().str.contains('TEST')]
+    listNeverRuns=[]
+    for item in df['File']:
+        listNeverRuns.append(item)
     listerror=[]
     with open('//covenas/decisionsupport/meinzer/temp/errorlogicsort.csv','r+') as lastWin:
        readLastWin=csv.reader(lastWin,delimiter=',')
@@ -81,7 +88,7 @@ def initPull(dataResults):
            #print row
            if row[7]=='1':
              print row
-             listerror.append(row[1]+' was last updated '+row[6]+' Days ago!') 
+             listerror.append(row[1]+' was last updated '+row[6]+' Days ago!')
     if not listerror:
        listerror.append("""
     All syntax have been run within expected timeframe<br>
@@ -89,6 +96,10 @@ def initPull(dataResults):
     """)
     for row in listerror:
         stringError ='<br> '.join(listerror)
+    if listNeverRuns:
+        stringError=stringError+'\n<br>FYI!<br>These files have been run but never had a success in overnight production:'
+        for item in listNeverRuns:
+            stringError=stringError+'<br>'+ item  
     return stringError
 
 def cuteScraper(url,emailImage):
@@ -273,6 +284,7 @@ def sendEmailV4(sender,recipientx,html,text):
     session.quit()
 
 try:
+   print "I'm working on it!"
    main(SendEmailTo,SendEmailFrom)
 except:
    logging.exception('Got exception on main handler')

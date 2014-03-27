@@ -136,7 +136,7 @@ def main(run,Files,AlertDays):
                     result='Not Scheduled to run'
                     Finish = datetime.datetime.now().replace( microsecond=0)
                     spss_Output(DBname)
-                    send_result(run,DBname,result,Start,Finish,status=-1,AlertDays)  
+                    send_result(run,DBname,result,Start,Finish,-1,AlertDays)  
                 send_output_to_dev(DBname)                        
     except IOError:
         print "can't open file, difficulty initializing comands from spss, or couldn't find output"
@@ -172,20 +172,20 @@ def main2(run,Files,AlertDays):
                 print DBname, ' output saved'  
                 SavedNewname=check_saved_new_name(DBname)
                 if SavedNewname==1:
-                    send_result(DBname,'Failure',Start,Finish,0,'x',cmd,cmd2,cmd3)
+                    send_result(run,DBname,'Failure',Start,Finish,0,'x',cmd,cmd2,cmd3)
                     break
                 if SavedNewname==0:
-                    send_result(DBname,'Success',Start,Finish,1,'x')
+                    send_result(run,DBname,'Success',Start,Finish,1,'x')
             except Exception,e:   
                 Finish = datetime.datetime.now().replace( microsecond=0)
                 errorLevel, errorMsg = get_spss_error(e)
-                send_result(DBname,"Failure in code",Start,Finish,0,'x',cmd,cmd2,cmd3,errorLevel, errorMsg )
+                send_result(run,DBname,"Failure in code",Start,Finish,0,'x',cmd,cmd2,cmd3,errorLevel, errorMsg )
                 spss_Output(DBname)  
                 break
             send_output_to_dev(DBname)  
     except IOError:
         print "can't open file or difficulty initializing comands from spss"
-        send_result('Can not open File %s' % DBname,Start,Finish)
+        send_result(run,'Can not open File %s' % DBname,Start,Finish)
     if SavedNewname==1:
         errorMsg='The File was saved as a new name, so i shut it down there! be cautious...'
     errorList=[]
@@ -241,7 +241,7 @@ def run_cmds(cmd,cmd2,cmd3,cmds):
     return (cmd, cmd2, cmd3)
 
 def send_result(run,DBname,result,Start,Finish,status,AlertDays,cmd='',cmd2='',cmd3='',errorLevel='', errorMsg=''):
-    """needed two versions of send_results before, but may have merged.  needs test """
+    """needed two versions of send_results before, because run not passed in and alertday =x? """
     print result + ' was sent for '+DBname
     FinishText = Finish.strftime("%m-%d-%y %H:%M")
     StartText = Start.strftime("%m-%d-%y %H:%M")
