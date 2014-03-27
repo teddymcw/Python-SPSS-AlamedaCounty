@@ -8,7 +8,7 @@ DEFINE DBstartdate() date.dmy(1,7,2012) !ENDDEFINE.
 
 get file="//covenas/decisionsupport/aoddbsvc.sav".
 
-select if xdate.tday(svcdate) ge yrmoda(2011,07,01).
+select if svcdate ge date.dmy(1,7,2011).
 
 * The NoShow module is for MH.
 * insert file='//covenas/decisionsupport/modules/noshow.sps'.

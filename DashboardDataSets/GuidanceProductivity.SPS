@@ -9,7 +9,7 @@
 
  * Get File='//covenas/decisionsupport/services13_qtr3.sav'/Keep Ru svcdate proced staff hours minute grpsize.
 
-get file='//covenas/decisionsupport/dbsvc.sav'/ keep Agency svcdate case proced. 
+get file='//covenas/decisionsupport/dbsvcallvars.sav'/ keep Agency svcdate case proced. 
 Select if agency="Guidance Clinic".
 select if not any (proced, 197, 200, 300, 400).
 insert file='//covenas/decisionsupport/meinzer/modules/calsvcdate.sps'.
@@ -22,7 +22,8 @@ AGGREGATE outfile = '//covenas/decisionsupport/Temp\GuidanceCalClients.sav'
    /Break calendar
    /MonthClients = sum(AgenCalCase1).
 
-get file='//covenas/decisionsupport/meinzer/temp/allsvcwork.sav' /Keep Ru svcdate proced staff hours minute grpsize agency svcMode.
+get file='//covenas/decisionsupport/dbsvcallvars.sav'.
+* /Keep Ru svcdate proced staff hours minute grpsize agency svcMode.
 
 Select if agency="Guidance Clinic".
 Select if xdate.tday(svcdate) ge yrmoda(2012,07,01).
@@ -49,6 +50,8 @@ recode grpsize(sysmis=1).
 recode grpsize(0=1).
 compute duration=(hours+hours2)/grpsize.
 
+
+
 If svcMode="10" day=1.
 If day=1 duration=0.
 
@@ -60,7 +63,8 @@ SAVE OUTFILE='//covenas/decisionsupport/Temp\GuidanceStaffWORK.sav'
 
 ******************************Co_Staff.
 
-get file='//covenas/decisionsupport/meinzer/temp/allsvcwork.sav' 	/keep ru svcdate proced co_staff cs_hours cs_mnts grpsize agency svcMode.
+get file='//covenas/decisionsupport/dbsvcallvars.sav'.
+* 	/keep ru svcdate proced co_staff cs_hours cs_mnts grpsize agency svcMode.
 
 Select if agency="Guidance Clinic".
 Select if xdate.tday(svcdate) ge yrmoda(2012,07,01).

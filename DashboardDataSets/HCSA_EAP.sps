@@ -313,6 +313,7 @@ Select if school ne "California School for the Deaf-Fremont ELEMHIGH".
 *Accuracy Test - End. 
 
 Save outfile = '//covenas/decisionsupport/Orozco/Temp/HCSA_EAP_Filter.sav'.
+ * get file  = '//covenas/decisionsupport/Orozco/Temp/HCSA_EAP_Filter.sav'.
 
 Select if Filter = "Gender".
 If Filter = "Gender" Filter = "None".
@@ -326,6 +327,12 @@ Aggregate Outfile = *
 Add files
    /File = *
    /file =  '//covenas/decisionsupport/Orozco/Temp/HCSA_EAP_Filter.sav'.
+exe.
+
+If Gender = " " Gender = "All".
+If ELL_Status  = " " ELL_Status = "All".
+If SES  = " " SES = "All".
+If Ethnicity  = " " Ethnicity = "All".
 
 Save outfile = '//covenas/decisionsupport/Orozco/ACPHD/HCSA_EAP.sav'. 
 

@@ -205,8 +205,6 @@ execute.
 
 insert file='//covenas/decisionsupport/meinzer/production/ps/modules/varinfo.sps'.
 
- * save outfile='//covenas/decisionsupport/meinzer/temp/allsvc.sav'.
- * get file='//covenas/decisionsupport/meinzer/temp/allsvc.sav'.
 
 match files /table='//covenas/decisionsupport/rutable.sav'/file=*/by ru.
 if ru2 ne " " RU=ru2.
@@ -515,7 +513,8 @@ compute  epflag='C'.
 end if.
 exe.
 *sort cases by service_Stamp.
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/DBSVC2011later.sav' /keep agency provname ru case opdate closdate svcdate svcmode psmask2 proced county mcsvccat kidsru calendar 
+save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/DBSVC2011later.sav'.
+* /keep agency provname ru case opdate closdate svcdate svcmode psmask2 proced county mcsvccat kidsru calendar 
 duration duration2 cost LastService proclong svcage PrimaryTherapist staff bday epflag primdx unit svcmode ab3632RU DayTx RU2 service_Stamp svc_Stmp grpsize.
  * save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/DBSVC.sav' /keep agency provname ru case opdate closdate svcdate svcmode psmask2 proced county mcsvccat kidsru calendar 
 duration duration2 cost LastService proclong svcage PrimaryTherapist staff bday epflag primdx unit svcmode ab3632RU DayTx RU2 service_Stamp svc_Stmp.
@@ -644,7 +643,10 @@ if closdate = date.dmy(17,11,1858) closdate=$sysmis.
 
 temp.
 select if svcdate ge date.dmy(1,1,2008).
-save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/DBSVC.sav' /keep agency provname ru case opdate closdate svcdate svcmode psmask2 proced county mcsvccat kidsru calendar 
+xsave outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/DBSVCallVars.sav' .
+save outfile='//covenas/decisionsupport/Meinzer/Production/Backup/stage/DBSVC.sav'  /keep agency provname ru case opdate closdate svcdate svcmode psmask2 proced county mcsvccat kidsru calendar 
+duration duration2 cost LastService proclong svcage PrimaryTherapist staff bday epflag primdx unit svcmode ab3632RU DayTx RU2 service_Stamp svc_Stmp grpsize.
+* /keep agency provname ru case opdate closdate svcdate svcmode psmask2 proced county mcsvccat kidsru calendar 
 duration duration2 cost LastService proclong svcage PrimaryTherapist staff bday epflag primdx unit svcmode ab3632RU DayTx RU2 service_Stamp svc_Stmp grpsize.
  * SAVE TRANSLATE OUTFILE='//covenas/decisionsupport/Meinzer/Production/Backup/csv/dbsvc.csv'
   /TYPE=CSV
